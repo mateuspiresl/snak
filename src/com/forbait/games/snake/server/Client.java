@@ -13,18 +13,13 @@ import com.forbait.games.snake.World.InvalidMovementException;
 public class Client implements Runnable {
 
 	private Socket client;
-	
-	private Server server;
-	private World world;
 	private Snake snake;
 	
 	private ObjectOutputStream oos;
 	
-	public Client(Socket client, Server server, World world) throws IOException {
+	public Client(Socket client) throws IOException
+	{
 		this.client = client;
-		this.server = server;
-		this.world = world;
-		
 		this.oos = new ObjectOutputStream(this.client.getOutputStream());
 	}
 	
@@ -36,48 +31,44 @@ public class Client implements Runnable {
 		return this.snake;
 	}
 	
-	//public void sendSnake
+	public void sendSnake(Snake snake) throws IOException {
+		this.oos.writeObject(snake);
+	}
 	
 	@Override
 	public void run()
 	{
 		if (this.snake == null)
-			throw new NotInitializedSnakeException();
+			throw new UnsetSnakeException();
 		
-		try
-		{
+		try {
 			ObjectInputStream ois = new ObjectInputStream(this.client.getInputStream());
+			sendSnake(this.snake);
 			
-			oos.writeObject(this.snake);
-			
-			while (true)
-			{
-				try
-				{
+			while (true) {
+				try {
 					Command cmd = (Command) ois.readObject();
 					
 					switch (cmd.type)
 					{
 					case MOVEMENT:
 						try {
-							this.world.move(this.snake, Snake.Movement.parse((Integer) cmd.data));
-							this.server.notifyClients(this.snake);
+							World.get().move(this.snake, Snake.Movement.parse((Integer) cmd.data));
+							Server.get().sendSnake(this.snake);
 						} catch (InvalidMovementException ime) {
 							oos.writeObject(new InvalidMovementException());
 						}
 					}
-				}
-				catch (ClassNotFoundException e) {
+				} catch (ClassNotFoundException e) {
 					e.printStackTrace();
 				}
 			}
-		}
-		catch (IOException e) {
+		} catch (IOException e) {
 			e.printStackTrace();
 		}
 	}
 	
 	@SuppressWarnings("serial")
-	public static class NotInitializedSnakeException extends RuntimeException { }
+	public static class UnsetSnakeException extends RuntimeException { }
 	
 }

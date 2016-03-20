@@ -27,7 +27,7 @@ public class RandomColor {
 		return this;
 	}
 	
-	public Color nextColor()
+	public Color next()
 	{
 		if (index == colors.length)
 			index = 0;

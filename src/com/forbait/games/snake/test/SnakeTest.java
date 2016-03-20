@@ -1,13 +1,17 @@
 package com.forbait.games.snake.test;
 
 import com.forbait.games.snake.Snake;
+import com.forbait.games.snake.World;
 import com.forbait.games.util.ImmutablePoint;
+import com.forbait.games.util.RandomColor;
 
 public class SnakeTest {
 
 	public static void main(String[] args)
 	{
-		Snake s = new Snake(new ImmutablePoint(40, 40));
+		World.set(40, 40);
+		
+		Snake s = new Snake(0, new RandomColor().next(), new ImmutablePoint(40, 40));
 		s.eat(new ImmutablePoint(41, 40));
 		s.eat(new ImmutablePoint(42, 40));
 		

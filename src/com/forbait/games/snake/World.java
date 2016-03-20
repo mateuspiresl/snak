@@ -1,17 +1,29 @@
 package com.forbait.games.snake;
 
+import com.forbait.games.snake.server.Server.UnsetServerException;
 import com.forbait.games.util.ImmutablePoint;
 
 public class World {
 	
+	public static final World INSTANCE = new World();
 	private Snake[][] world;
 	
-	public World(int width, int height)
+	private World() { }
+	
+	public static World get()
 	{
-		this.world = new Snake[height][];
+		if (INSTANCE.world == null)
+			throw new UnsetServerException();
+		else
+			return INSTANCE;
+	}
+	
+	public static void set(int width, int height)
+	{
+		INSTANCE.world = new Snake[height][];
 		
-		for(int i = 0; i < this.world.length; i++)
-			this.world[i] = new Snake[width];
+		for(int i = 0; i < INSTANCE.world.length; i++)
+			INSTANCE.world[i] = new Snake[width];
 	}
 	
 	public Snake at(ImmutablePoint point) {

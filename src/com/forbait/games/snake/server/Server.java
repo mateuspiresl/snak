@@ -2,10 +2,13 @@ package com.forbait.games.snake.server;
 
 import java.io.IOException;
 import java.net.ServerSocket;
+import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Random;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 
 import com.forbait.games.snake.Snake;
 import com.forbait.games.snake.World;
@@ -14,30 +17,31 @@ import com.forbait.games.util.RandomColor;
 
 public class Server {
 
-	public static Server instance;
+	private static final Server INSTANCE = new Server();
 	private static final int PORT = 8080;
 	
 	private ServerSocket server;
 	private ExecutorService executor;
+	private List<Future<?>> tasks = new ArrayList<Future<?>>();
 	private List<Client> clients;
 	
 	private int numClients;
-	private World world;
 	
-	private Server(int numClients, World world) throws IOException
+	private Server() { }
+	
+	public static Server get()
 	{
-		this.world = world;
-		this.server = new ServerSocket(PORT);
-		this.numClients = numClients;
-		this.executor = Executors.newFixedThreadPool(numClients);
+		if (INSTANCE.server == null)
+			throw new UnsetServerException();
+		else
+			return INSTANCE;
 	}
 	
-	public Server newServer(int numClients, World world) throws IOException
+	public static void set(int numClients, World world) throws IOException
 	{
-		if (instance == null)
-			return Server.instance = new Server(numClients, world);
-		else
-			return Server.instance;
+		INSTANCE.server = new ServerSocket(PORT);
+		INSTANCE.numClients = numClients;
+		INSTANCE.executor = Executors.newFixedThreadPool(numClients);
 	}
 	
 	public void waitClients()
@@ -45,7 +49,7 @@ public class Server {
 		while (clients.size() < numClients)
 		{
 			try {
-				this.clients.add(new Client(this.server.accept(), this, this.world));
+				this.clients.add(new Client(this.server.accept()));
 			} catch (IOException ioe) {
 				ioe.printStackTrace();
 			}
@@ -59,17 +63,33 @@ public class Server {
 		
 		for (int i = 0; i < this.clients.size(); i++)
 		{
-			this.clients.get(i).setSnake(new Snake(i, rc.nextColor(), new ImmutablePoint(rnd.nextInt(200), rnd.nextInt(200))));
-			this.executor.execute(this.clients.get(i));
+			this.clients.get(i).setSnake(new Snake(
+					i,
+					rc.next(),
+					new ImmutablePoint(rnd.nextInt(200), rnd.nextInt(200))
+				));
+			
+			this.tasks.add(this.executor.submit(this.clients.get(i)));
 		}
 	}
 	
-	public void notifyClients(Snake snake)
+	public void sendSnake(Snake snake)
 	{
-		//for (Client client : this.clients)
+		Iterator<Client> iterator = this.clients.iterator();
+		for (int i = 0; iterator.hasNext(); i++)
 		{
-			//client
+			Client client = iterator.next();
+			
+			try {
+				client.sendSnake(snake);
+			} catch (IOException ioe) {
+				this.tasks.get(i).cancel(true);
+				iterator.remove();
+			}
 		}
 	}
+	
+	@SuppressWarnings("serial")
+	public static class UnsetServerException extends RuntimeException { }
 	
 }

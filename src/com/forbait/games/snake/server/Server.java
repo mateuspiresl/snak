@@ -12,7 +12,7 @@ import java.util.concurrent.Future;
 
 import com.forbait.games.snake.Snake;
 import com.forbait.games.snake.World;
-import com.forbait.games.util.ImmutablePoint;
+import com.forbait.games.util.Point;
 import com.forbait.games.util.RandomColor;
 
 public class Server {
@@ -66,7 +66,7 @@ public class Server {
 			this.clients.get(i).setSnake(new Snake(
 					i,
 					rc.next(),
-					new ImmutablePoint(rnd.nextInt(World.get().getWidth()), rnd.nextInt(World.get().getHeight()))
+					new Point(rnd.nextInt(World.get().getWidth()), rnd.nextInt(World.get().getHeight()))
 				));
 			
 			this.tasks.add(this.executor.submit(this.clients.get(i)));

@@ -7,8 +7,7 @@ import java.util.List;
 
 import javax.swing.JPanel;
 
-import com.forbait.games.snake.server.Server.UnsetServerException;
-import com.forbait.games.util.ImmutablePoint;
+import com.forbait.games.util.Point;
 
 @SuppressWarnings("serial")
 public class World extends JPanel {
@@ -21,12 +20,8 @@ public class World extends JPanel {
 	
 	private World() { }
 	
-	public static World get()
-	{
-		if (INSTANCE.world == null)
-			throw new UnsetServerException();
-		else
-			return INSTANCE;
+	public static World get() {
+		return INSTANCE;
 	}
 	
 	public static void set(int width, int height, int numSnakes)
@@ -57,17 +52,17 @@ public class World extends JPanel {
 		this.snakes[id] = snake;
 	}
 	
-	public Snake at(ImmutablePoint point) {
+	public Snake at(Point point) {
 		return this.world[point.getY()][point.getX()];
 	}
 	
-	private void put(ImmutablePoint point, Snake snake) {
+	/*private void put(Point point, Snake snake) {
 		this.world[point.getY()][point.getX()] = snake;
 	}
 	
 	public void move(Snake snake, Snake.Movement movement) throws InvalidMovementException
 	{
-		ImmutablePoint newHead = movement.from(snake.getHead());
+		Point newHead = movement.from(snake.getHead());
 		
 		try {
 			if (this.at(newHead) == null)
@@ -81,18 +76,18 @@ public class World extends JPanel {
 		catch (ArrayIndexOutOfBoundsException aioobe) {
 			throw new InvalidMovementException();
 		}
-	}
+	}*/
 	
-	public void position(int id, List<ImmutablePoint> snakeBody)
+	public void positionSnake(int id, List<Point> snakeBody)
 	{
 		Snake snake = this.snakes[id];
 		
-		for (ImmutablePoint point : snake.getBody())
+		for (Point point : snake.getBody())
 			this.world[point.getY()][point.getX()] = null;
 		
 		snake.position(snakeBody);
 		
-		for (ImmutablePoint point : snakeBody)
+		for (Point point : snakeBody)
 			this.world[point.getY()][point.getX()] = snake;
 	}
 	
@@ -112,9 +107,9 @@ public class World extends JPanel {
 				snake.draw(graphics);
 	}
 	
-	public static class InvalidMovementException extends Exception {
+	/*public static class InvalidMovementException extends Exception {
 		// Generated serial version
 		private static final long serialVersionUID = -8090115647167755731L;
-	}
+	}*/
 	
 }

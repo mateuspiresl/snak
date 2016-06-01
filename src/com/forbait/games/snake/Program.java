@@ -3,8 +3,9 @@ package com.forbait.games.snake;
 import java.awt.BorderLayout;
 import java.awt.CardLayout;
 import java.awt.Container;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
-import java.awt.event.ItemListener;
 
 import javax.swing.JFrame;
 import javax.swing.JPanel;
@@ -14,30 +15,37 @@ import javax.swing.UnsupportedLookAndFeelException;
 import com.forbait.games.snake.ui.CreatePanel;
 import com.forbait.games.snake.ui.StartPanel;
 
-public class Program implements ItemListener {
+public class Program implements ActionListener { //ItemListener {
 
-	JPanel cards; //a panel that uses CardLayout
-	final static String STARTPANEL = "start";
-	final static String CREATEPANEL = "create";
-	 
+	private static final Program INSTANCE = new Program();
+	
+	private JPanel cards;
+	public final static String PANEL_START = "start";
+	public final static String PANEL_CREATE = "create";
+	
+	public static Program get() {
+		return INSTANCE;
+	}
+	
 	public void addComponentToPane(Container pane)
 	{	 
 		//Create the "cards".
-		JPanel card1 = new StartPanel();
+		JPanel card1 = new StartPanel(this);
 		JPanel card2 = new CreatePanel();
 		
 		//Create the panel that contains the "cards".
 		cards = new JPanel(new CardLayout());
-		cards.add(card1, STARTPANEL);
-		cards.add(card2, CREATEPANEL);
+		cards.add(card1, PANEL_START);
+		cards.add(card2, PANEL_CREATE);
 		
 		pane.add(cards, BorderLayout.CENTER);
 	}
 	 
-	public void itemStateChanged(ItemEvent evt)
+	public void changePanel(String panelName)
 	{
 		CardLayout cl = (CardLayout) cards.getLayout();
-		cl.show(cards, (String) evt.getItem());
+		cl = (CardLayout) cards.getLayout();
+		cl.show(cards, panelName);
 	}
 	 
 	/**
@@ -47,7 +55,7 @@ public class Program implements ItemListener {
 	 */
 	private static void createAndShowGUI() {
 		//Create and set up the window.
-		JFrame frame = new JFrame("CardLayoutDemo");
+		JFrame frame = new JFrame("Snak");
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		 
 		//Create and set up the content pane.
@@ -58,7 +66,26 @@ public class Program implements ItemListener {
 		frame.pack();
 		frame.setVisible(true);
 	}
-	 
+
+	@Override
+	public void actionPerformed(ActionEvent event)
+	{
+		switch (event.getActionCommand())
+		{
+		case StartPanel.BUTTON_NEW:
+			changePanel(PANEL_CREATE);
+			break;
+			
+		case StartPanel.BUTTON_CONNECT:
+			
+		case StartPanel.BUTTON_EXIT:
+			
+		default:
+			changePanel(PANEL_START);
+			break;
+		}
+	}
+	
 	public static void main(String[] args) {
 		/* Use an appropriate Look and Feel */
 		try {

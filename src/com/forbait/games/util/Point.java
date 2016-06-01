@@ -1,12 +1,12 @@
 package com.forbait.games.util;
 
 
-public class ImmutablePoint {
+public class Point {
 
 	private int x;
 	private int y;
 	
-	public ImmutablePoint(int x, int y) {
+	public Point(int x, int y) {
 		this.x = x;
 		this.y = y;
 	}
@@ -22,10 +22,10 @@ public class ImmutablePoint {
 	@Override
 	public boolean equals(Object obj)
 	{
-		if (obj == null || ! (obj instanceof ImmutablePoint))
+		if (obj == null || ! (obj instanceof Point))
 			return false;
 		
-		ImmutablePoint that = (ImmutablePoint) obj;
+		Point that = (Point) obj;
 		return this.x == that.x && this.y == that.y;
 	}
 	

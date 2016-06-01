@@ -37,7 +37,7 @@ public class Server {
 			return INSTANCE;
 	}
 	
-	public static void set(int numClients, World world) throws IOException
+	public static void set(int numClients) throws IOException
 	{
 		INSTANCE.server = new ServerSocket(PORT);
 		INSTANCE.numClients = numClients;
@@ -66,7 +66,7 @@ public class Server {
 			this.clients.get(i).setSnake(new Snake(
 					i,
 					rc.next(),
-					new ImmutablePoint(rnd.nextInt(200), rnd.nextInt(200))
+					new ImmutablePoint(rnd.nextInt(World.get().getWidth()), rnd.nextInt(World.get().getHeight()))
 				));
 			
 			this.tasks.add(this.executor.submit(this.clients.get(i)));

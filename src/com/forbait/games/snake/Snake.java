@@ -1,6 +1,7 @@
 package com.forbait.games.snake;
 
 import java.awt.Color;
+import java.awt.Graphics;
 import java.io.Serializable;
 import java.util.LinkedList;
 import java.util.List;
@@ -53,6 +54,10 @@ public class Snake {
 	public ImmutablePoint getTail() {
 		return this.body.getLast();
 	}
+
+	public void position(List<ImmutablePoint> body) {
+		this.body = new LinkedList<ImmutablePoint>(body);
+	}
 	
 	public void move(Movement movement)
 	{
@@ -85,6 +90,14 @@ public class Snake {
 	
 	public Data data() {
 		return new Data(this);
+	}
+	
+	public void draw(Graphics graphics)
+	{
+		graphics.setColor(this.color);
+		
+		for (ImmutablePoint point : this.body)
+			graphics.drawLine(point.getX(), point.getY(), point.getX(), point.getY());
 	}
 	
 	

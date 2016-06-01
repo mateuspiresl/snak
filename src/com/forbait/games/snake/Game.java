@@ -22,10 +22,10 @@ public class Game {
 			System.exit(1);
 		}
 		
-		this.window = new JFrame("SnakeWar");
+		this.window = new JFrame("Snak");
 		this.window.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		this.window.setLayout(new BorderLayout());
-		this.window.add(World.get());
+		this.window.add();
 		this.window.pack();
 		this.window.setLocationRelativeTo(null);
 		this.window.setVisible(true);

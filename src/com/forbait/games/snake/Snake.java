@@ -8,17 +8,11 @@ import java.util.List;
 
 import com.forbait.games.util.Point;
 
-public class Snake {
+public class Snake implements Serializable {
 
 	private int id;
 	private Color color;
 	private LinkedList<Point> body = new LinkedList<Point>();
-	
-	private Snake(Data data)
-	{
-		this.color = data.color;
-		this.body = data.body;
-	}
 	
 	public Snake(int id, Color color, Point initial)
 	{
@@ -90,10 +84,6 @@ public class Snake {
 		return breakAt(this.body.indexOf(point));
 	}*/
 	
-	public Data data() {
-		return new Data(this);
-	}
-	
 	public void draw(Graphics graphics)
 	{
 		graphics.setColor(this.color);
@@ -137,25 +127,6 @@ public class Snake {
 			
 			return null;
 		}
-	}
-	
-	public static class Data implements Serializable {
-
-		public int id;
-		public Color color;
-		public LinkedList<Point> body = new LinkedList<Point>();
-		
-		public Data(Snake snake)
-		{
-			this.id = snake.id;
-			this.color = snake.color;
-			this.body = snake.body;
-		}
-		
-		public Snake build() {
-			return new Snake(this);
-		}
-		
 	}
 	
 }

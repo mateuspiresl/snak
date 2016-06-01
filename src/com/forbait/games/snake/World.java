@@ -12,28 +12,20 @@ import com.forbait.games.util.Point;
 @SuppressWarnings("serial")
 public class World extends JPanel {
 	
-	public static final World INSTANCE = new World();
-	
 	private Snake[] snakes;
 	private Snake[][] world;
 	private int width, height;
 	
-	private World() { }
-	
-	public static World get() {
-		return INSTANCE;
-	}
-	
-	public static void set(int width, int height, int numSnakes)
+	private World(int width, int height, int numSnakes)
 	{
-		INSTANCE.width = width;
-		INSTANCE.height = height;
-		INSTANCE.snakes = new Snake[numSnakes];
+		this.width = width;
+		this.height = height;
+		this.snakes = new Snake[numSnakes];
 		
-		INSTANCE.world = new Snake[height][];
+		this.world = new Snake[height][];
 		
-		for(int i = 0; i < INSTANCE.world.length; i++)
-			INSTANCE.world[i] = new Snake[width];
+		for(int i = 0; i < this.world.length; i++)
+			this.world[i] = new Snake[width];
 	}
 	
 	public int getWidth() {

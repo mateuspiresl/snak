@@ -12,13 +12,13 @@ import java.util.concurrent.Future;
 
 import com.forbait.games.snake.Snake;
 import com.forbait.games.snake.World;
+import com.forbait.games.snake.ui.ClientsConnectionListener;
 import com.forbait.games.util.Point;
 import com.forbait.games.util.RandomColor;
 
-public class Server {
-
-	private static final Server INSTANCE = new Server();
-	private static final int PORT = 8080;
+public class Server
+{
+	// private final int port;
 	
 	private ServerSocket server;
 	private ExecutorService executor;
@@ -26,22 +26,16 @@ public class Server {
 	private List<Client> clients;
 	
 	private int numClients;
+	private ClientsConnectionListener listener;
 	
-	private Server() { }
-	
-	public static Server get()
+	public Server(int port, int numClients, ClientsConnectionListener listener) throws IOException
 	{
-		if (INSTANCE.server == null)
-			throw new UnsetServerException();
-		else
-			return INSTANCE;
-	}
-	
-	public static void set(int numClients) throws IOException
-	{
-		INSTANCE.server = new ServerSocket(PORT);
-		INSTANCE.numClients = numClients;
-		INSTANCE.executor = Executors.newFixedThreadPool(numClients);
+		// this.port = port;
+		this.server = new ServerSocket(port);
+		this.executor = Executors.newFixedThreadPool(numClients);
+		
+		this.numClients = numClients;
+		this.listener = listener;
 	}
 	
 	public void waitClients()
@@ -50,13 +44,14 @@ public class Server {
 		{
 			try {
 				this.clients.add(new Client(this.server.accept()));
+				this.listener.clientConnected();
 			} catch (IOException ioe) {
 				ioe.printStackTrace();
 			}
 		}
 	}
 	
-	public void start()
+	/*public void start()
 	{
 		Random rnd = new Random();
 		RandomColor rc = new RandomColor();
@@ -90,6 +85,6 @@ public class Server {
 	}
 	
 	@SuppressWarnings("serial")
-	public static class UnsetServerException extends RuntimeException { }
+	public static class UnsetServerException extends RuntimeException { }*/
 	
 }

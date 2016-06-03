@@ -4,6 +4,8 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.swing.JFrame;
 
@@ -12,6 +14,7 @@ import com.forbait.games.util.Point;
 public class Game extends JFrame implements KeyListener {
 
 	private World world;
+	private List<Snake> snakes = new ArrayList<>();
 
 	public Game(int numPlayers, int width, int height)
 	{
@@ -27,7 +30,7 @@ public class Game extends JFrame implements KeyListener {
 		
 		super.pack();
 		super.setLocationRelativeTo(null);
-		super.setVisible(true);		
+		super.setVisible(true);	
 	}
 
 	@Override

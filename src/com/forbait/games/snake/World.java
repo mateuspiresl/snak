@@ -110,7 +110,7 @@ public class World extends JPanel {
 	protected void paintComponent(Graphics graphics) {
 		super.paintComponent(graphics);
 		graphics.setColor(Color.WHITE);
-		graphics.fillRect(0, 0, this.width * 100, this.height * 100);
+		graphics.fillRect(0, 0, this.width, this.height);
 		
 		System.out.println(this.width);
 		System.out.println(this.height);

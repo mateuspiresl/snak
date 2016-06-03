@@ -86,6 +86,11 @@ public class Program implements ActionListener { //ItemListener {
 		}
 	}
 	
+	public void createGame(int numPlayers, int width, int height)
+	{
+		new Game(numPlayers, width, height);
+	}
+	
 	public static void main(String[] args) {
 		/* Use an appropriate Look and Feel */
 		try {

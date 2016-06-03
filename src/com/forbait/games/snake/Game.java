@@ -1,39 +1,30 @@
 package com.forbait.games.snake;
 
 import java.awt.BorderLayout;
-import java.io.IOException;
+import java.awt.Color;
 
 import javax.swing.JFrame;
 
-import com.forbait.games.snake.server.Server;
+import com.forbait.games.util.Point;
 
 public class Game {
 
 	private JFrame window;
-	
-	public Game()
+	private World world;
+
+	public Game(int numPlayers, int width, int height)
 	{
-		World.set(40, 40, 4);
-		try {
-			Server.set(4);
-		} catch (IOException e) {
-			e.printStackTrace();
-			System.out.println("Error starting server.");
-			System.exit(1);
-		}
+		this.world = new World(width, height);
+		
+		this.world.add(new Snake(1, Color.BLACK, new Point(this.world.getHorizontalTiles() / 2, this.world.getVerticalTiles() / 2)));
 		
 		this.window = new JFrame("Snak");
 		this.window.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		this.window.setLayout(new BorderLayout());
-		this.window.add();
+		this.window.add(this.world);
 		this.window.pack();
 		this.window.setLocationRelativeTo(null);
 		this.window.setVisible(true);
-	}
-	
-	public static void main(String[] args)
-	{
-		new Game();
 	}
 
 }

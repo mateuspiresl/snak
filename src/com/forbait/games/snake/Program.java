@@ -38,7 +38,7 @@ public class Program extends JFrame implements ActionListener { //ItemListener {
 		this.connectionListener = clientsPanel;
 		
 		this.cards = new JPanel(new CardLayout());
-		this.cards.add(new StartPanel(this), PANEL_START);
+		this.cards.add(new StartPanel(), PANEL_START);
 		this.cards.add(new CreatePanel(), PANEL_CREATE);
 		this.cards.add(clientsPanel, PANEL_WAITING);
 		
@@ -55,7 +55,6 @@ public class Program extends JFrame implements ActionListener { //ItemListener {
 	 
 	public void changePanel(String panelName)
 	{
-		System.out.println(this.cards);
 		CardLayout cl = (CardLayout) this.cards.getLayout();
 		cl.show(this.cards, panelName);
 	}
@@ -84,11 +83,11 @@ public class Program extends JFrame implements ActionListener { //ItemListener {
 	
 	public void createGame(int numPlayers, int width, int height)
 	{
-		this.connectionListener.setClientsCounter(numPlayers, 1);
-		changePanel(PANEL_WAITING);
-		
 		if (numPlayers > 1) try
 		{
+			this.connectionListener.setClientsCounter(numPlayers, 1);
+			changePanel(PANEL_WAITING);
+			
 			Server server = new Server(8001, numPlayers - 1, this.connectionListener);
 			
 			new Thread(new Runnable() {
@@ -113,6 +112,7 @@ public class Program extends JFrame implements ActionListener { //ItemListener {
 		else
 		{
 			new Game(numPlayers, width, height);
+			super.setVisible(false);
 		}
 	}
 	

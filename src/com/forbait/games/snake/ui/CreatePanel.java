@@ -19,6 +19,8 @@ import com.forbait.games.snake.Program;
 
 public class CreatePanel extends JPanel implements ActionListener {
 	
+	public static final String BUTTON_BACK = "create_back";
+	
 	private Program program;
 	private JTextField	numPlayersField,
 						widthField,
@@ -46,8 +48,11 @@ public class CreatePanel extends JPanel implements ActionListener {
 		heightField.addActionListener(this);
 		heightField.setText("30");
 		
-		JButton button = new JButton("Criar");
-		button.addActionListener(this);
+		JButton createButton = new JButton("Criar");
+		createButton.addActionListener(this);
+		JButton backButton = new JButton("Voltar");
+		backButton.setActionCommand(BUTTON_BACK);
+		backButton.addActionListener(Program.get());
 		
 		// Insertion
 		
@@ -62,7 +67,8 @@ public class CreatePanel extends JPanel implements ActionListener {
 		middleBlock.add(heightField);
 		
 		JPanel bottomBlock = new JPanel(new FlowLayout());
-		bottomBlock.add(button);
+		bottomBlock.add(backButton);
+		bottomBlock.add(createButton);
 		
 		super.add(topBlock);
 		super.add(middleBlock);

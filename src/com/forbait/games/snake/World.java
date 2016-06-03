@@ -112,9 +112,6 @@ public class World extends JPanel {
 		graphics.setColor(Color.WHITE);
 		graphics.fillRect(0, 0, this.width, this.height);
 		
-		System.out.println(this.width);
-		System.out.println(this.height);
-		
 		for (Snake snake : this.snakes)
 			if (snake != null)
 		{

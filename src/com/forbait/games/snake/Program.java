@@ -90,15 +90,30 @@ public class Program extends JFrame implements ActionListener { //ItemListener {
 		if (numPlayers > 1) try
 		{
 			Server server = new Server(8001, numPlayers - 1, this.connectionListener);
-			server.waitClients();
+			
+			new Thread(new Runnable() {
+				private Server server;
+				
+				public Runnable setServer(Server server) {
+					this.server = server;
+					return this;
+				}
+				
+				@Override
+				public void run() {
+					server.waitClients();
+				}
+			}.setServer(server)).start();
 		}
 		catch (IOException e) {
 			e.printStackTrace();
 			
 			// TODO
 		}
-		
-		new Game(numPlayers, width, height);
+		else
+		{
+			new Game(numPlayers, width, height);
+		}
 	}
 	
 	public static void main(String[] args)

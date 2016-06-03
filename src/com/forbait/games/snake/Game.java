@@ -2,29 +2,56 @@ package com.forbait.games.snake;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 
 import javax.swing.JFrame;
 
 import com.forbait.games.util.Point;
 
-public class Game {
+public class Game extends JFrame implements KeyListener {
 
-	private JFrame window;
 	private World world;
 
 	public Game(int numPlayers, int width, int height)
 	{
-		this.world = new World(width, height);
+		super("Snak - Game");
+		super.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		super.setLayout(new BorderLayout());
 		
+		this.world = new World(width, height);	
 		this.world.add(new Snake(1, Color.BLACK, new Point(this.world.getHorizontalTiles() / 2, this.world.getVerticalTiles() / 2)));
 		
-		this.window = new JFrame("Snak");
-		this.window.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		this.window.setLayout(new BorderLayout());
-		this.window.add(this.world);
-		this.window.pack();
-		this.window.setLocationRelativeTo(null);
-		this.window.setVisible(true);
+		super.add(this.world);
+		super.addKeyListener(this);
+		
+		super.pack();
+		super.setLocationRelativeTo(null);
+		super.setVisible(true);		
 	}
+
+	@Override
+	public void keyPressed(KeyEvent event)
+	{
+		switch (event.getKeyCode())
+		{
+		case KeyEvent.VK_UP:
+			break;
+			
+		case KeyEvent.VK_DOWN:
+			break;
+			
+		case KeyEvent.VK_LEFT:
+			break;
+			
+		case KeyEvent.VK_RIGHT:			
+		}
+	}
+
+	@Override
+	public void keyReleased(KeyEvent event) { }
+
+	@Override
+	public void keyTyped(KeyEvent event) { }
 
 }

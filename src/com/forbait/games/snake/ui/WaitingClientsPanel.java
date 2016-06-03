@@ -9,11 +9,14 @@ import javax.swing.JPanel;
 
 import com.forbait.games.snake.Program;
 
-public class WaitingClientsPanel extends JPanel {
+public class WaitingClientsPanel extends JPanel implements ClientsConnectionListener {
 	
-	private Program program;
+	private int numPlayers;
+	private int numPlayersConnected;
+	private JLabel clientsCounter; 
+	private JLabel hostAddress; 
 	
-	public WaitingClientsPanel(Program program) {
+	public WaitingClientsPanel() {
 		super();
 		super.setLayout(new BoxLayout(this, BoxLayout.PAGE_AXIS));
 		
@@ -22,7 +25,38 @@ public class WaitingClientsPanel extends JPanel {
 			ip = InetAddress.getLocalHost().getHostAddress();
 		} catch (UnknownHostException e) { e.printStackTrace(); }
 		
-		super.add(new JLabel("Seu IP é: " + ip));
+		this.clientsCounter = new JLabel();
+		updateCounter();
+		
+		this.hostAddress = new JLabel();
+		setHostAddress("desconhecido.");
+		
+		super.add(this.hostAddress);
+		super.add(this.clientsCounter);
+	}
+	
+	private void updateCounter() {
+		this.clientsCounter.setText("Jogadores conectados: " + this.numPlayersConnected + " / " + this.numPlayers);
+	}
+	
+	@Override
+	public void setClientsCounter(int numPlayers, int numPlayersConnected)
+	{
+		this.numPlayers = numPlayers;
+		this.numPlayersConnected = numPlayersConnected;
+		updateCounter();
+	}
+	
+	@Override
+	public void clientConnected()
+	{
+		this.numPlayersConnected++;
+		updateCounter();
+	}
+
+	@Override
+	public void setHostAddress(String address) {
+		this.hostAddress.setText("Seu IP é " + address);
 	}
 
 }

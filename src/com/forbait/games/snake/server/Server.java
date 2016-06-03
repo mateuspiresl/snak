@@ -23,7 +23,7 @@ public class Server
 	private ServerSocket server;
 	private ExecutorService executor;
 	private List<Future<?>> tasks = new ArrayList<Future<?>>();
-	private List<Client> clients;
+	private List<Client> clients = new ArrayList<Client>();
 	
 	private int numClients;
 	private ClientsConnectionListener listener;

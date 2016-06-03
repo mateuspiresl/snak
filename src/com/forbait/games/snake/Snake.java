@@ -21,6 +21,11 @@ public class Snake implements Serializable {
 		this.body.add(initial);
 	}
 	
+	@Override
+	public boolean equals(Object that) {
+		return that instanceof Snake && ((Snake) that).id == this.id;
+	}
+	
 	public int getID() {
 		return this.id;
 	}
@@ -89,7 +94,7 @@ public class Snake implements Serializable {
 		graphics.setColor(this.color);
 		
 		for (Point point : this.body)
-			graphics.drawLine(point.getX(), point.getY(), 10, 10);
+			graphics.fillRect(point.getX(), point.getY(), World.MULTIPLIER, World.MULTIPLIER);
 	}
 	
 	

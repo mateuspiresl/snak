@@ -5,14 +5,16 @@ import java.awt.Dimension;
 import java.awt.Graphics;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javax.swing.JPanel;
 
 import com.forbait.games.snake.elements.Eatable;
 import com.forbait.games.snake.elements.Snake;
-import com.forbait.games.snake.exceptions.InvalidMovementException;
+import com.forbait.games.snake.elements.Snake.Movement;
 import com.forbait.games.util.Point;
 
 @SuppressWarnings("serial")
@@ -21,10 +23,10 @@ public class World extends JPanel {
 	public static final int MULTIPLIER = 10;
 	
 	private List<Snake> snakes = new ArrayList<Snake>();
-	private Map<Point, Snake> futureHeads = new HashMap<Point, Snake>();
+	private Map<Point, Snake> bodies = new HashMap<Point, Snake>();
 	private Map<Point, Eatable> eatables = new HashMap<Point, Eatable>();
+	private Map<Snake, Movement> futureMovements = new HashMap<Snake, Movement>();
 	
-	private Snake[][] world;
 	private int horizontalTiles, verticalTiles;
 	private int width, height;
 	
@@ -34,10 +36,6 @@ public class World extends JPanel {
 		this.verticalTiles = verticalTiles;
 		this.width = horizontalTiles * MULTIPLIER;
 		this.height = verticalTiles * MULTIPLIER;
-		
-		this.world = new Snake[verticalTiles][];
-		for(int i = 0; i < verticalTiles; i++)
-			this.world[i] = new Snake[horizontalTiles];
 	}
 	
 	public int getHorizontalTiles() {
@@ -60,62 +58,113 @@ public class World extends JPanel {
 		return this.snakes;
 	}
 	
+	public void addMovement(Snake snake, Snake.Movement movement) {
+		this.futureMovements.put(snake, movement);
+	}
+	
+	public Movement getMovement(Snake snake) {
+		return this.futureMovements.get(snake);
+	}
+	
 	public Snake at(Point position) {
-		return this.world[position.getY()][position.getX()];
+		return this.bodies.get(position);
 	}
 	
-	private void put(Point point, Snake snake) {
-		this.world[point.getY()][point.getX()] = snake;
+	public boolean isIn(Point position) {
+		return 	position.getX() >= 0 &&
+				position.getX() < this.width &&
+				position.getY() >= 0 &&
+				position.getY() < this.height;
 	}
 	
-	public void move(Snake snake, Snake.Movement movement) throws InvalidMovementException
+	public Set<Snake> move()
 	{
-		Point newHead = movement.from(snake.getHead());
+		Set<Snake> destroy = new HashSet<Snake>();
+		List<Snake> cut = new ArrayList<Snake>();
+		Map<Point, Snake> futureHeads = new HashMap<Point, Snake>();
 		
-		try {
-			if (at(newHead) == null)
+		for (Snake snake : this.snakes)
+		{
+			Movement movement = this.futureMovements.get(snake);
+			System.out.println("Move: " + movement);
+			
+			Point headPosition = movement.from(snake.getHead());
+			Snake enemy = this.bodies.get(headPosition);
+			
+			if (enemy != null && enemy.equals(snake))
 			{
-				snake.move(movement);
-				put(newHead, snake);
-				put(snake.getTail(), null);
+				if (snake.getBody().get(1).equals(headPosition))
+				{
+					if (snake.getMovement().equals(movement))
+						movement = movement.opposit();
+					else
+						movement = snake.getMovement();
+					
+					this.futureMovements.put(snake, movement);
+					System.out.println("New move: " + movement);
+					
+					headPosition = movement.from(snake.getHead());
+					enemy = this.bodies.get(headPosition);
+				}
+				else
+				{
+					snake.setMovement(movement);
+					continue;
+				}
 			}
-			else throw new InvalidMovementException();
+			
+			snake.setMovement(movement);
+			
+			if ( ! isIn(headPosition))
+				cut.add(snake);
+			
+			else if (enemy != null && ! enemy.getTail().equals(headPosition))
+				destroy.add(snake);
+			
+			else if (futureHeads.containsKey(headPosition))
+			{
+				destroy.add(snake);
+				destroy.add(futureHeads.get(headPosition));
+			}
 		}
-		catch (ArrayIndexOutOfBoundsException aioobe) {
-			throw new InvalidMovementException(aioobe);
-		}
-	}
-	
-	public void move(Map<Snake, Snake.Movement> movements)
-	{
 		
+		for (Snake snake : cut)
+		{
+			snake.getBody().remove(0);
+			
+			if (snake.getSize() < 2)
+				destroy.add(snake);
+		}
+		
+		for (Snake snake : cut)
+			remove(snake);
+		
+		for (Snake snake : this.snakes)
+			snake.move(this.futureMovements.get(snake));
+		
+		return destroy;
 	}
 	
-	public void erase()
+	public void remove(List<Point> body)
 	{
-		for (Snake[] row : this.world)
-			for (int i = 0; i < this.width; i++)
-				row[i] = null;
-	}
-	
-	public void remove(Point[] positions)
-	{
-		for (Point point : positions)
-			this.world[point.getY()][point.getX()] = null;
+		for (Point point : body)
+			this.bodies.remove(point);
 	}
 	
 	public void remove(Snake snake)
 	{
 		remove(snake.getBody());
 		this.snakes.remove(snake);
+		this.futureMovements.remove(snake);
 	}
 	
 	public void add(Snake snake)
 	{
 		this.snakes.add(snake);
+		this.futureMovements.put(snake, snake.getMovement());
 		
 		for (Point point : snake.getBody())
-			this.world[point.getY()][point.getX()] = snake;
+			this.bodies.put(point, snake);		
 	}
 	
 	@Override
@@ -144,3 +193,37 @@ public class World extends JPanel {
 	}
 	
 }
+
+/*public Set<Snake> makeFuture()
+{
+	Map<Point, Snake> heads = new HashMap<Point, Snake>();
+	Map<Point, Snake> bodies = new HashMap<Point, Snake>();
+	Set<Snake> collisions = new HashSet<Snake>();
+	
+	for (Snake snake : this.snakes)
+	{
+		Movement movement = this.futureMovements.get(snake);
+		Point head = movement.from(snake.getHead());
+		Snake enemy = heads.get(head);
+		
+		if (enemy == null)
+			heads.put(head, snake);
+		else
+		{
+			if (snake.getSize() <= enemy.getSize())
+				collisions.add(snake);
+			else
+				heads.put(head, snake);
+			
+			if (enemy.getSize() <= snake.getSize())
+				collisions.add(enemy);
+		}
+	}
+	
+	for (Point head : heads.keySet())
+	{
+		
+	}
+	
+	return collisions;
+}*/

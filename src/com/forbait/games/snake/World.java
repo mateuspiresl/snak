@@ -4,10 +4,15 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.swing.JPanel;
 
+import com.forbait.games.snake.elements.Eatable;
+import com.forbait.games.snake.elements.Snake;
+import com.forbait.games.snake.exceptions.InvalidMovementException;
 import com.forbait.games.util.Point;
 
 @SuppressWarnings("serial")
@@ -16,6 +21,9 @@ public class World extends JPanel {
 	public static final int MULTIPLIER = 10;
 	
 	private List<Snake> snakes = new ArrayList<Snake>();
+	private Map<Point, Snake> futureHeads = new HashMap<Point, Snake>();
+	private Map<Point, Eatable> eatables = new HashMap<Point, Eatable>();
+	
 	private Snake[][] world;
 	private int horizontalTiles, verticalTiles;
 	private int width, height;
@@ -48,6 +56,10 @@ public class World extends JPanel {
 		return this.height * MULTIPLIER;
 	}
 	
+	public List<Snake> getSnakes() {
+		return this.snakes;
+	}
+	
 	public Snake at(Point position) {
 		return this.world[position.getY()][position.getX()];
 	}
@@ -70,8 +82,13 @@ public class World extends JPanel {
 			else throw new InvalidMovementException();
 		}
 		catch (ArrayIndexOutOfBoundsException aioobe) {
-			throw new InvalidMovementException();
+			throw new InvalidMovementException(aioobe);
 		}
+	}
+	
+	public void move(Map<Snake, Snake.Movement> movements)
+	{
+		
 	}
 	
 	public void erase()
@@ -107,8 +124,12 @@ public class World extends JPanel {
 	}
 	
 	@Override
-	protected void paintComponent(Graphics graphics) {
+	protected void paintComponent(Graphics graphics)
+	{
 		super.paintComponent(graphics);
+		
+		System.out.println("Drawing " + this.snakes.get(0));
+		
 		graphics.setColor(Color.WHITE);
 		graphics.fillRect(0, 0, this.width, this.height);
 		
@@ -120,9 +141,6 @@ public class World extends JPanel {
 			for (Point point : snake.getBody())
 				graphics.fillRect(point.getX() * World.MULTIPLIER, point.getY() * World.MULTIPLIER, World.MULTIPLIER, World.MULTIPLIER);
 		}
-	}
-	
-	public static class InvalidMovementException extends Exception {
 	}
 	
 }

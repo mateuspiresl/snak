@@ -20,14 +20,23 @@ public class Point {
 	}
 	
 	@Override
-	public boolean equals(Object obj)
+	public boolean equals(Object that)
 	{
-		if (obj == null || ! (obj instanceof Point))
-			return false;
+		if (this == that) return true;
+		if (that == null || ! (that instanceof Point)) return false;
 		
-		Point that = (Point) obj;
-		return this.x == that.x && this.y == that.y;
+		Point point = (Point) that;
+		return this.x == point.x && this.y == point.y;
 	}
 	
+	@Override
+	public String toString() {
+		return "Point { x: " + this.x + ", y: " + this.y + " }";
+	}
+	
+	@Override
+	public int hashCode() {
+		return (this.x << 16) | this.y;
+	}
 	
 }

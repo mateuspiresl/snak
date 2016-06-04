@@ -6,36 +6,73 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.Random;
+import java.util.Set;
 
 import javax.swing.JFrame;
 import javax.swing.Timer;
 
 import com.forbait.games.snake.elements.Snake;
 import com.forbait.games.snake.elements.Snake.Movement;
-import com.forbait.games.snake.exceptions.InvalidMovementException;
 import com.forbait.games.util.Point;
 
+@SuppressWarnings("serial")
 public class Game extends JFrame implements KeyListener, ActionListener {
 
-	private final int FPS = 1000 / 20;
+	private final int FPS = 1000 / 8;
 	
 	private Snake localPlayer;
 	private World world;
-	private Map<Snake, Movement> moves = new HashMap<Snake, Movement>();
 	private Timer loop;
 
 	public Game(int numPlayers, int width, int height, Snake localPlayer)
 	{
 		this(numPlayers, width, height);
 		
+		if (localPlayer == null)
+		{
+			Random rnd = new Random();
+			int quad = rnd.nextInt(4);
+			
+			int x = 0, y = 0;
+			Snake.Movement movement = null;
+			
+			switch (quad)
+			{
+			case 0:
+			case 2:	x = (int) (width * 0.06) + rnd.nextInt((int) (width * 0.60)); break;
+			case 1:
+			case 3: x = (int) (width * 0.4 ) + rnd.nextInt((int) (width * 0.60));
+			}
+			
+			switch (quad)
+			{
+			case 0:
+			case 1:	y = (int) (height * 0.06) + rnd.nextInt((int) (height * 0.60)); break;
+			case 2:
+			case 3: y = (int) (height * 0.34 ) + rnd.nextInt((int) (height * 0.60));
+			}
+			
+			switch (quad)
+			{
+			case 0: movement = rnd.nextBoolean() ? Snake.Movement.DOWN : Snake.Movement.RIGHT; break;
+			case 1:	movement = rnd.nextBoolean() ? Snake.Movement.DOWN : Snake.Movement.LEFT; break;
+			case 2: movement = rnd.nextBoolean() ? Snake.Movement.UP : Snake.Movement.RIGHT; break;
+			case 3: movement = rnd.nextBoolean() ? Snake.Movement.UP : Snake.Movement.LEFT; break;
+			default: movement = null;
+			}
+			
+			localPlayer = new Snake(Color.BLACK, new Point(x, y), movement);
+		}
+		
+		localPlayer.eat();
+		
 		System.out.println("Creating " + localPlayer);
 		this.localPlayer = localPlayer;
 		this.world.add(localPlayer);
 		super.addKeyListener(this);
 		
-		this.world.add(new Snake(Color.BLUE, new Point(150, 150)));
+		// this.world.add(new Snake(Color.BLUE, new Point(150, 150)));
 	}
 	
 	public Game(int numPlayers, int width, int height)
@@ -58,30 +95,10 @@ public class Game extends JFrame implements KeyListener, ActionListener {
 	@Override
 	public void actionPerformed(ActionEvent event)
 	{
-		for (Snake snake : this.world.getSnakes())
-		{
-			Movement movement = this.moves.get(snake);
-			if (movement == null)
-			{
-				movement = snake.getMovement();
-				this.moves.put(snake, movement);
-			}
-			
-			System.out.println("Move: " + snake.getMovement());
-			
-			try {
-				this.world.move(snake, movement);
-			} catch (InvalidMovementException e) {
-				try {
-					movement = movement.opposit();
-					this.moves.put(snake, movement);
-					this.world.move(snake, movement);
-				} catch (InvalidMovementException e1) { e1.printStackTrace(); }
-			}
-			
-//			if ( ! this.moves.get(snake).equals(snake.getMovement()))	
-//			snake.move();
-		}
+		Set<Snake> dead = this.world.move();
+		
+		if (dead.contains(this.localPlayer))
+			super.removeKeyListener(this);
 		
 		super.repaint();
 	}
@@ -92,19 +109,19 @@ public class Game extends JFrame implements KeyListener, ActionListener {
 		switch (event.getKeyCode())
 		{
 		case KeyEvent.VK_UP:
-			this.moves.put(this.localPlayer, Movement.UP);
+			this.world.addMovement(this.localPlayer, Movement.UP);
 			break;
 			
 		case KeyEvent.VK_DOWN:
-			this.moves.put(this.localPlayer, Movement.DOWN);
+			this.world.addMovement(this.localPlayer, Movement.DOWN);
 			break;
 			
 		case KeyEvent.VK_LEFT:
-			this.moves.put(this.localPlayer, Movement.LEFT);
+			this.world.addMovement(this.localPlayer, Movement.LEFT);
 			break;
 			
 		case KeyEvent.VK_RIGHT:			
-			this.moves.put(this.localPlayer, Movement.RIGHT);
+			this.world.addMovement(this.localPlayer, Movement.RIGHT);
 		}
 	}
 

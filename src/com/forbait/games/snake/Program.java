@@ -113,7 +113,7 @@ public class Program extends JFrame implements ActionListener { //ItemListener {
 		}
 		else
 		{
-			new Game(numPlayers, width, height, new Snake(Color.BLACK));
+			new Game(numPlayers, width, height, null);
 			super.setVisible(false);
 		}
 	}

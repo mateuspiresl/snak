@@ -6,9 +6,9 @@ import java.io.ObjectOutputStream;
 import java.net.Socket;
 
 import com.forbait.games.snake.Command;
-import com.forbait.games.snake.Snake;
 import com.forbait.games.snake.World;
 import com.forbait.games.snake.World.InvalidMovementException;
+import com.forbait.games.snake.elements.Snake;
 
 public class Client implements Runnable {
 

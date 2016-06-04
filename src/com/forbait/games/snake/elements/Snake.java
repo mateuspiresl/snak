@@ -50,8 +50,8 @@ public class Snake implements Serializable {
 		return this.body.size();
 	}
 	
-	public Point[] getBody() {
-		return this.body.toArray(new Point[0]);
+	public /*Point[]*/ List<Point> getBody() {
+		return this.body; //.toArray(new Point[0]);
 	}
 	
 	public boolean isAt(Point point) {
@@ -80,11 +80,20 @@ public class Snake implements Serializable {
 		this.body.addAll(body);
 	}
 	
+	public void eat() {
+		this.body.addFirst(movement.from(this.body.getFirst()));
+	}
+	
+	public void move()
+	{
+		eat();
+		this.body.removeLast();
+	}
+	
 	public void move(Movement movement)
 	{
 		this.movement = movement;
-		this.body.addFirst(movement.from(this.body.getFirst()));
-		this.body.removeLast();
+		move();
 	}
 	
 	/*public void eat(Point point)

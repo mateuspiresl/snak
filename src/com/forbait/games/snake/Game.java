@@ -16,7 +16,7 @@ import com.forbait.games.snake.elements.Snake;
 import com.forbait.games.snake.elements.Snake.Movement;
 
 @SuppressWarnings("serial")
-public class Game extends JFrame implements KeyListener, ActionListener {
+public class Game implements KeyListener, ActionListener {
 
 	private final int FPS = 1000 / 8;
 
@@ -110,8 +110,8 @@ public class Game extends JFrame implements KeyListener, ActionListener {
 		if (this.world.getSnakes().isEmpty())
 		{
 			this.loop.stop();
-			this.dispose();
-			this.setVisible(false);
+			this.frame.dispose();
+			this.frame.setVisible(false);
 			Program.get().setWindowVisibility(true);
 		}
 		

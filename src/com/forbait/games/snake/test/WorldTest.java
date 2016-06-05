@@ -11,14 +11,10 @@ public class WorldTest {
 
 	public static void main(String[] args)
 	{
-		System.out.println("Testing random position generator: " + booleanAnswer(testRandomPositionGenerator()));
+		System.out.println("Testing empty cell finder: " + Test.booleanAnswer(emptyCellFinder()));
 	}
 	
-	public static String booleanAnswer(boolean answer) {
-		return answer ? "OK" : "Fail";
-	}
-	
-	public static boolean testRandomPositionGenerator()
+	public static boolean emptyCellFinder()
 	{
 		World w = new World(new Dimension(30, 30));
 		Point p = null;

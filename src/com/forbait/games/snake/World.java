@@ -57,6 +57,10 @@ public class World extends JPanel {
 		return this.snakes;
 	}
 	
+	public int countSnakes() {
+		return this.snakes.size();
+	}
+	
 	public Snake at(Point position) {
 		return this.bodies.get(position);
 	}
@@ -69,6 +73,7 @@ public class World extends JPanel {
 	{
 		Set<Snake> destroy = new HashSet<Snake>();
 		List<Snake> cut = new ArrayList<Snake>();
+		Map<Snake, Point> tailCollision = new HashMap<Snake, Point>();
 		Map<Point, Snake> futureHeads = new HashMap<Point, Snake>();
 		
 		for (Snake snake : this.snakes)
@@ -76,50 +81,92 @@ public class World extends JPanel {
 			Movement movement = snake.getNextMovement();
 			Point headPosition = movement.from(snake.getHead());
 			Snake enemy = this.bodies.get(headPosition);
-			
-			if (enemy != null && enemy.equals(snake))
+
+			// Useless
+			/*synchronized (snake)
 			{
-				if (snake.getBody().get(1).equals(headPosition))
+				movement = snake.getNextMovement();
+				headPosition = movement.from(snake.getHead());
+				enemy = this.bodies.get(headPosition);
+				
+				// If collided with its own body
+				if (snake.equals(enemy))
 				{
-					if (snake.getMovement().equals(movement))
-						movement = movement.opposit();
-					else
-						movement = snake.getMovement();
-					
-					snake.setNextMovement(movement);
-					
-					headPosition = movement.from(snake.getHead());
-					enemy = this.bodies.get(headPosition);
-					
-					if (snake.equals(enemy))
-						enemy = null;
+					// If collided with its nuke
+					// Never happens
+					/*if (snake.getBody().get(1).equals(headPosition))
+					{
+						if (snake.getMovement().equals(movement))
+							movement = movement.opposit();
+						else
+							movement = snake.getMovement();
+						
+						snake.setNextMovement(movement);
+						
+						headPosition = movement.from(snake.getHead());
+						enemy = this.bodies.get(headPosition);
+						
+						if (snake.equals(enemy))
+							enemy = null;
+					}
+					else enemy = null;
 				}
-				else enemy = null;
-			}
+			}*/
 			
+			if (snake.equals(enemy))
+				enemy = null;
+			
+			// Head goes out of the field
 			if ( ! isIn(headPosition))
 				cut.add(snake);
 			
-			else if (enemy != null && ! enemy.getTail().equals(headPosition))
-				destroy.add(snake);
+			else if (enemy != null)
+			{
+				// Possible collision with enemy body if it is not eating
+				if (enemy.getTail().equals(headPosition))
+					tailCollision.put(snake, headPosition);
+				
+				// Collides with enemy body
+				else
+					destroy.add(snake);
+			}
 			
+			// Does not collide with any head
 			else if ( ! futureHeads.containsKey(headPosition))
 				futureHeads.put(headPosition, snake);
 			
+			// Does
 			else {
 				destroy.add(snake);
 				destroy.add(futureHeads.get(headPosition));
 			} 
 		}
 		
+		// Cuts snakes if its size is less than the minimum
 		for (Snake snake : cut)
 		{
-			snake.getBody().remove(0);
+			Point head = snake.getBody().remove(0);
 			
 			if (snake.getSize() < 2)
 				destroy.add(snake);
+			else
+				futureHeads.put(head, snake);
 		}
 		
+		// Adds snakes to destroy set if it collided with a tail of
+		// an enemy that is eating
+		for (Snake snake : tailCollision.keySet())
+		{
+			Snake enemy = this.bodies.get(tailCollision.get(snake));
+			
+			if (destroy.contains(enemy))
+				futureHeads.put(enemy.getTail(), snake);
+			
+			else if (this.eatables.containsKey(enemy.getNextMovement().from(enemy.getHead())))
+				destroy.add(snake);
+		}
+		
+		// Destroys snakes and spread its pieces
 		for (Snake snake : destroy)
 		{
 			remove(snake);
@@ -134,13 +181,11 @@ public class World extends JPanel {
 				add(new SnakePiece(body.get(i)));
 		}
 		
+		// Makes snakes move or eat
 		for (Point head : futureHeads.keySet())
 		{
 			Snake snake = futureHeads.get(head);
 			if (destroy.contains(snake)) continue;
-			
-			// System.out.println(futureHeads);
-			// System.out.println(this.eatables);
 			
 			if (this.eatables.containsKey(head))
 			{

@@ -6,12 +6,16 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Random;
 import java.util.Set;
 
 import javax.swing.JFrame;
 import javax.swing.Timer;
 
+import com.forbait.games.snake.elements.Bot;
 import com.forbait.games.snake.elements.Egg;
 import com.forbait.games.snake.elements.Snake;
 import com.forbait.games.snake.elements.Snake.Movement;
@@ -27,7 +31,8 @@ public class Game implements KeyListener, ActionListener {
 	private World world;
 	private Timer loop;
 	
-	private int numEatables;
+	// private int numEatables;
+	private List<Bot> bots = new ArrayList<Bot>();
 
 	public Game(int numPlayers, Dimension tiles, Snake localPlayer)
 	{
@@ -43,19 +48,24 @@ public class Game implements KeyListener, ActionListener {
 		this.world.add(localPlayer);
 		this.frame.addKeyListener(this);
 		
-		Snake enemy = new Snake(Color.BLUE, new Point(15, 15), Movement.DOWN);
-		enemy.eat();
-		this.world.add(enemy);
-		System.out.println("Creating " + enemy);
+//		Bot enemy;
+//		enemy = new Bot(Color.BLUE, this.world.findEmptyCell(), Movement.random(), this.world);
+//		enemy.eat();
+//		this.world.add(enemy);
+//		this.bots.add(enemy);
+//		System.out.println("Creating " + enemy);
+//		
+//		enemy = new Bot(Color.RED, this.world.findEmptyCell(), Movement.random(), this.world);
+//		enemy.eat();
+//		this.world.add(enemy);
+//		this.bots.add(enemy);
+//		System.out.println("Creating " + enemy);
 		
-		numEatables = numPlayers / 2;
-		if (numEatables == 0) numEatables = 1;
-		
+		// Number of eggs is equal to the number of players
+		// Starts with an extra egg
+		int numEatables = numPlayers + 1;
 		for (int i = 0; i < numEatables; i++)
 			this.world.add(new Egg(this.world.findEmptyCell()));
-		
-		// Extra egg
-		this.world.add(new Egg(this.world.findEmptyCell()));
 	}
 	
 	public Game(int numPlayers, Dimension tiles)
@@ -71,7 +81,7 @@ public class Game implements KeyListener, ActionListener {
 		this.frame.setLocationRelativeTo(null);
 		this.frame.setVisible(true);
 		
-		// Use threads here!
+		// TODO Use threads here!
 		this.loop = new Timer(FPS, this);
 		this.loop.start();
 	}
@@ -79,6 +89,11 @@ public class Game implements KeyListener, ActionListener {
 	public Snake createRandomSnake(Color color)
 	{
 		Random rnd = new Random();
+
+		int x = rnd.nextInt(this.world.getTiles().width);
+		int y = rnd.nextInt(this.world.getTiles().height);
+		
+		/* Random rnd = new Random();
 		int quad = rnd.nextInt(4);
 		
 		int x = 0, y = 0;
@@ -100,7 +115,7 @@ public class Game implements KeyListener, ActionListener {
 		case 0:
 		case 1:	y = (int) (height * 0.06) + rnd.nextInt((int) (height * 0.60)); break;
 		case 2:
-		case 3: y = (int) (height * 0.34 ) + rnd.nextInt((int) (height * 0.60));
+		case 3: y = (int) (height * 0.34) + rnd.nextInt((int) (height * 0.60));
 		}
 		
 		switch (quad)
@@ -112,18 +127,16 @@ public class Game implements KeyListener, ActionListener {
 		default: movement = null;
 		}
 		
-		return new Snake(Color.BLACK, new Point(x, y), movement);
-	}
-	
-	public Snake createRandomSnake()
-	{
+		return new Snake(Color.BLACK, new Point(x, y), movement);*/
+		
 		return null;
 	}
 	
 	@Override
 	public void actionPerformed(ActionEvent event)
 	{
-		if (this.world.getSnakes().isEmpty())
+		// Game oer if there is no snake alive
+		if (this.world.countSnakes() == 0)
 		{
 			this.loop.stop();
 			this.frame.dispose();
@@ -131,15 +144,29 @@ public class Game implements KeyListener, ActionListener {
 			Program.get().setWindowVisibility(true);
 		}
 		
+		// Keep the amount of eggs
+		int numEatables = this.world.countSnakes();
 		for (int i = this.world.countEatables(); i < numEatables; i++)
 			this.world.add(new Egg(this.world.findEmptyCell()));
 		
+		// Makes moves and paint
 		Set<Snake> dead = this.world.move();
+		this.frame.repaint();
 		
+		// Turn off keyboard listener if player's snake is dead
 		if (dead.contains(this.localPlayer))
 			this.frame.removeKeyListener(this);
 		
-		this.frame.repaint();
+		// Remove dead bots and genereate their next movements
+		Iterator<Bot> botIt = this.bots.iterator();
+		while (botIt.hasNext())
+		{
+			Bot bot = botIt.next();
+			if (dead.contains(bot))
+				botIt.remove();
+			else
+				bot.generateNextMovement();
+		}
 	}
 	
 	@Override

@@ -52,8 +52,8 @@ public class Snake implements Serializable {
 		return this.body.size();
 	}
 	
-	public /*Point[]*/ List<Point> getBody() {
-		return this.body; //.toArray(new Point[0]);
+	public List<Point> getBody() {
+		return this.body;
 	}
 	
 	public boolean isAt(Point point) {
@@ -72,23 +72,15 @@ public class Snake implements Serializable {
 		return this.movement;
 	}
 	
-	/*public void setMovement(Movement movement) {
-		this.movement = movement;
-	}*/
-	
-	public Movement getNextMovement() {
+	public synchronized Movement getNextMovement() {
 		return this.nextMovement;
 	}
 	
-	public void setNextMovement(Movement movement) {
-		this.movement = movement;
-	}
-	
-	/*public void position(List<Point> body)
+	public synchronized void setNextMovement(Movement movement)
 	{
-		this.body.clear();
-		this.body.addAll(body);
-	}*/
+		if ( ! movement.equals(this.movement.opposit()))
+			this.nextMovement = movement;
+	}
 	
 	public void eat() {
 		this.body.addFirst(this.nextMovement.from(this.body.getFirst()));
@@ -106,29 +98,6 @@ public class Snake implements Serializable {
 		this.nextMovement = movement;
 		move();
 	}
-	
-	/*public void eat(Point point)
-	{
-		// TODO check is possible
-		
-		this.body.add(point);
-	}
-	
-	public Point[] breakAt(int index)
-	{
-		if (index < 0 || index >= this.body.size())
-			return null;
-		
-		List<Point> remove = this.body.subList(index, this.body.size());
-		Point[] removed = remove.toArray(new Point[0]);
-		remove.clear();
-		
-		return removed;
-	}
-	
-	public Point[] breakAt(Point point) {
-		return breakAt(this.body.indexOf(point));
-	}*/
 	
 	@Override
 	public String toString() {
@@ -170,6 +139,14 @@ public class Snake implements Serializable {
 		
 		public Movement opposit() {
 			return Movement.parse(-this.id);
+		}
+		
+		public Movement other(Random rnd) {
+			return Movement.parse((rnd.nextBoolean() ? 1 : -1) * (Math.abs(this.id) == 1 ? 2 : 1)); 
+		}
+		
+		public Movement other() {
+			return other(new Random());
 		}
 		
 		public Point from(Point point)

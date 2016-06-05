@@ -3,6 +3,7 @@ package com.forbait.games.snake;
 import java.awt.Color;
 import java.awt.Graphics;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -82,8 +83,6 @@ public class World extends JPanel {
 		for (Snake snake : this.snakes)
 		{
 			Movement movement = this.futureMovements.get(snake);
-			// System.out.println("Move: " + movement);
-			
 			Point headPosition = movement.from(snake.getHead());
 			Snake enemy = this.bodies.get(headPosition);
 			
@@ -97,16 +96,14 @@ public class World extends JPanel {
 						movement = snake.getMovement();
 					
 					this.futureMovements.put(snake, movement);
-					// System.out.println("New move: " + movement);
 					
 					headPosition = movement.from(snake.getHead());
 					enemy = this.bodies.get(headPosition);
+					
+					if (snake.equals(enemy))
+						enemy = null;
 				}
-				else
-				{
-					snake.setMovement(movement);
-					continue;
-				}
+				else enemy = null;
 			}
 			
 			snake.setMovement(movement);
@@ -141,27 +138,33 @@ public class World extends JPanel {
 			// 20 to 80% of the body
 			int numPieces = (int) (snake.getSize() * (0.2 + new Random().nextDouble() * 0.6));
 			
-			while (numPieces-- > 0)
-				add(new SnakePiece(findEmptyCell()));
+			List<Point> body = snake.getBody();
+			Collections.shuffle(body, new Random(System.nanoTime()));
+			
+			for (int i = 0; i < numPieces; i++)
+				add(new SnakePiece(body.get(i)));
 		}
-		
-//		for (Snake snake : this.snakes)
-//			snake.move(this.futureMovements.get(snake));
 		
 		for (Point head : futureHeads.keySet())
 		{
 			Snake snake = futureHeads.get(head);
 			if (destroy.contains(snake)) continue;
 			
-			System.out.println(futureHeads);
-			System.out.println(this.eatables);
+			// System.out.println(futureHeads);
+			// System.out.println(this.eatables);
 			
 			if (this.eatables.containsKey(head))
 			{
 				this.eatables.remove(head);
+				this.bodies.put(head, snake);
 				snake.eat();
 			}
-			else snake.move();
+			else
+			{
+				this.bodies.remove(snake.getTail());
+				this.bodies.put(head, snake);
+				snake.move();
+			}
 		}
 		
 		return destroy;
@@ -216,6 +219,10 @@ public class World extends JPanel {
 			this.eatables.put(eatable.getPosition(), eatable);
 		else
 			throw new OccupiedCellException();
+	}
+	
+	public int countEatables() {
+		return this.eatables.size();
 	}
 	
 	@Override

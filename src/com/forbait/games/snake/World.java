@@ -7,6 +7,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 import java.util.Set;
 
 import javax.swing.JPanel;
@@ -14,6 +15,10 @@ import javax.swing.JPanel;
 import com.forbait.games.snake.elements.Eatable;
 import com.forbait.games.snake.elements.Snake;
 import com.forbait.games.snake.elements.Snake.Movement;
+import com.forbait.games.snake.exceptions.FullWorldException;
+import com.forbait.games.snake.exceptions.OccupiedCellException;
+import com.forbait.games.util.Dimension;
+import com.forbait.games.util.Point;
 
 @SuppressWarnings("serial")
 public class World extends JPanel {
@@ -32,6 +37,11 @@ public class World extends JPanel {
 	{
 		this.tiles = tiles;
 		this.screen = new Dimension(tiles.getWidth() * MULTIPLIER, tiles.getHeight() * MULTIPLIER);
+	}
+	
+	@Debug
+	public int countOccupied() {
+		return this.bodies.size() + this.eatables.size();
 	}
 	
 	public Dimension getTiles() {
@@ -152,6 +162,36 @@ public class World extends JPanel {
 			this.bodies.put(point, snake);		
 	}
 	
+	public Point getEmptyPosition() throws FullWorldException
+	{
+		int width = this.tiles.getWidth();
+		int height = this.tiles.getHeight();
+		
+		Random rnd = new Random();
+		int x = rnd.nextInt(width);
+		int y = rnd.nextInt(height);
+		Point position = null;
+		
+		for (int xVar = 0; xVar < width; xVar++) {
+			for (int yVar = 0; yVar < height; yVar++)
+			{
+				position = new Point((x + xVar) % width, (y + yVar) % height);
+				if ( ! this.bodies.containsKey(position) && ! this.eatables.containsKey(position))
+					return position;
+			}
+		}
+		
+		throw new FullWorldException();
+	}
+	
+	public void add(Eatable eatable)
+	{
+		if ( ! this.eatables.containsKey(eatable.getPosition()))
+			this.eatables.put(eatable.getPosition(), eatable);
+		else
+			throw new OccupiedCellException();
+	}
+	
 	@Override
 	public java.awt.Dimension getPreferredSize() {
 		return new java.awt.Dimension(this.screen.getWidth(), this.screen.getHeight());
@@ -162,9 +202,7 @@ public class World extends JPanel {
 	{
 		super.paintComponent(graphics);
 		
-		// System.out.println("Drawing " + this.snakes.get(0));
-		
-		graphics.setColor(Color.WHITE);
+		graphics.setColor(new Color(225, 255, 225));
 		graphics.fillRect(0, 0, this.screen.getWidth(), this.screen.getHeight());
 		
 		for (Snake snake : this.snakes)
@@ -175,6 +213,9 @@ public class World extends JPanel {
 			for (Point point : snake.getBody())
 				graphics.fillRect(point.getX() * World.MULTIPLIER, point.getY() * World.MULTIPLIER, World.MULTIPLIER, World.MULTIPLIER);
 		}
+		
+		for (Eatable eatable : this.eatables.values())
+			eatable.draw(graphics);
 	}
 	
 }

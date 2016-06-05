@@ -12,8 +12,11 @@ import java.util.Set;
 import javax.swing.JFrame;
 import javax.swing.Timer;
 
+import com.forbait.games.snake.elements.Egg;
 import com.forbait.games.snake.elements.Snake;
 import com.forbait.games.snake.elements.Snake.Movement;
+import com.forbait.games.util.Dimension;
+import com.forbait.games.util.Point;
 
 @SuppressWarnings("serial")
 public class Game implements KeyListener, ActionListener {
@@ -38,6 +41,12 @@ public class Game implements KeyListener, ActionListener {
 		this.localPlayer = localPlayer;
 		this.world.add(localPlayer);
 		this.frame.addKeyListener(this);
+		
+		int numEatables = numPlayers / 2;
+		if (numEatables == 0) numEatables = 1;
+		
+		for (int i = 0; i < numEatables; i++)
+			this.world.add(new Egg(this.world.getEmptyPosition()));
 		
 		// this.world.add(new Snake(Color.BLUE, new Point(150, 150)));
 	}
@@ -111,7 +120,7 @@ public class Game implements KeyListener, ActionListener {
 		{
 			this.loop.stop();
 			this.frame.dispose();
-			this.frame.setVisible(false);
+			// this.frame.setVisible(false);
 			Program.get().setWindowVisibility(true);
 		}
 		

@@ -7,8 +7,8 @@ import java.net.Socket;
 
 import com.forbait.games.snake.Command;
 import com.forbait.games.snake.World;
-import com.forbait.games.snake.World.InvalidMovementException;
 import com.forbait.games.snake.elements.Snake;
+import com.forbait.games.snake.exceptions.InvalidMovementException;
 
 public class Client implements Runnable {
 
@@ -52,12 +52,12 @@ public class Client implements Runnable {
 					switch (cmd.type)
 					{
 					case MOVEMENT:
-						try {
-							World.get().move(this.snake, Snake.Movement.parse((Integer) cmd.data));
-							Server.get().sendSnake(this.snake);
-						} catch (InvalidMovementException ime) {
-							oos.writeObject(new InvalidMovementException());
-						}
+//						try {
+//							World.get().move(this.snake, Snake.Movement.parse((Integer) cmd.data));
+//							Server.get().sendSnake(this.snake);
+//						} catch (InvalidMovementException ime) {
+//							oos.writeObject(new InvalidMovementException());
+//						}
 					}
 				} catch (ClassNotFoundException e) {
 					e.printStackTrace();

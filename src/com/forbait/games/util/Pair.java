@@ -1,22 +1,9 @@
 package com.forbait.games.util;
 
-public class Pair<A, B> {
-
-	private A a;
-	private B b;
+public abstract class Pair<A, B> {
 	
-	public Pair(A a, B b) {
-		this.a = a;
-		this.b = b;
-	}
-	
-	public A getA() {
-		return this.a;
-	}
-	
-	public B getB() {
-		return this.b;
-	}
+	public abstract A getA();
+	public abstract B getB();
 	
 	@Override
 	public boolean equals(Object that)
@@ -25,17 +12,18 @@ public class Pair<A, B> {
 		if (that == null || ! (this.getClass().isAssignableFrom(that.getClass()))) return false;
 		
 		Pair<?, ?> pair = (Pair<?, ?>) that;
-		return this.a.equals(pair.a) && this.b.equals(pair.b);
+		return getA().equals(pair.getA()) && this.getB().equals(pair.getB());
 	}
 	
 	@Override
 	public String toString() {
-		return "Pair { a: " + this.a + ", b: " + this.b + " }";
+		return "Pair { a: " + getA() + ", b: " + getB() + " }";
 	}
 	
 	@Override
 	public int hashCode() {
-		return (this.a.hashCode() << 16) | (this.b.hashCode() & 0x0000FFFF);
+		return (getA().hashCode() << 16 + getA().hashCode() & 0x0000FFFF)
+				| (getB().hashCode() >> 16 + getB().hashCode() & 0x0000FFFF);
 	}
 	
 }

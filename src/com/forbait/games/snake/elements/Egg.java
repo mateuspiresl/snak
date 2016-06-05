@@ -18,7 +18,7 @@ public class Egg extends Eatable {
 		Point normalized = super.normalizedPosition(super.getPosition(), World.MULTIPLIER);
 		
 		graphics.setColor(Color.LIGHT_GRAY);
-		graphics.fillOval(normalized.getX(), normalized.getY(), World.MULTIPLIER, World.MULTIPLIER);
+		graphics.fillOval(normalized.x, normalized.y, World.MULTIPLIER, World.MULTIPLIER);
 	}
 	
 	@Override

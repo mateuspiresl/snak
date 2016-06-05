@@ -2,24 +2,29 @@ package com.forbait.games.util;
 
 public class Dimension extends Pair<Integer, Integer> {
 
+	public final int width, height;
+	
 	public Dimension(int width, int height) {
-		super(width, height);
+		this.width = width;
+		this.height = height;
 	}
-	
-	public int getWidth() {
-		return super.getA();
+
+	@Override
+	public Integer getA() {
+		return this.width;
 	}
-	
-	public int getHeight() {
-		return super.getB();
+
+	@Override
+	public Integer getB() {
+		return this.height;
 	}
 	
 	public boolean contains(Point point)
 	{
-		return 	point.getX() >= 0 &&
-				point.getX() < super.getA() &&
-				point.getY() >= 0 &&
-				point.getY() < super.getB();
+		return 	point.x >= 0 &&
+				point.x < this.width &&
+				point.y >= 0 &&
+				point.y < this.height;
 	}
 
 }

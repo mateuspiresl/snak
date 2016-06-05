@@ -18,7 +18,7 @@ public class SnakePiece extends Eatable {
 		Point normalized = super.normalizedPosition(super.getPosition(), World.MULTIPLIER);
 		
 		graphics.setColor(Color.GREEN);
-		graphics.fillRect(normalized.getX(), normalized.getY(), World.MULTIPLIER, World.MULTIPLIER);
+		graphics.fillRect(normalized.x, normalized.y, World.MULTIPLIER, World.MULTIPLIER);
 	}
 
 }

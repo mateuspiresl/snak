@@ -30,7 +30,6 @@ public class World extends JPanel {
 	private List<Snake> snakes = new ArrayList<Snake>();
 	private Map<Point, Snake> bodies = new HashMap<Point, Snake>();
 	private Map<Point, Eatable> eatables = new HashMap<Point, Eatable>();
-	private Map<Snake, Movement> futureMovements = new HashMap<Snake, Movement>();
 	
 	private Dimension tiles;
 	private Dimension screen;
@@ -38,7 +37,7 @@ public class World extends JPanel {
 	public World(Dimension tiles)
 	{
 		this.tiles = tiles;
-		this.screen = new Dimension(tiles.getWidth() * MULTIPLIER, tiles.getHeight() * MULTIPLIER);
+		this.screen = new Dimension(tiles.width * MULTIPLIER, tiles.height * MULTIPLIER);
 	}
 	
 	@Debug
@@ -58,14 +57,6 @@ public class World extends JPanel {
 		return this.snakes;
 	}
 	
-	public void setMovement(Snake snake, Snake.Movement movement) {
-		this.futureMovements.put(snake, movement);
-	}
-	
-	public Movement getMovement(Snake snake) {
-		return this.futureMovements.get(snake);
-	}
-	
 	public Snake at(Point position) {
 		return this.bodies.get(position);
 	}
@@ -82,7 +73,7 @@ public class World extends JPanel {
 		
 		for (Snake snake : this.snakes)
 		{
-			Movement movement = this.futureMovements.get(snake);
+			Movement movement = snake.getNextMovement();
 			Point headPosition = movement.from(snake.getHead());
 			Snake enemy = this.bodies.get(headPosition);
 			
@@ -95,7 +86,7 @@ public class World extends JPanel {
 					else
 						movement = snake.getMovement();
 					
-					this.futureMovements.put(snake, movement);
+					snake.setNextMovement(movement);
 					
 					headPosition = movement.from(snake.getHead());
 					enemy = this.bodies.get(headPosition);
@@ -105,8 +96,6 @@ public class World extends JPanel {
 				}
 				else enemy = null;
 			}
-			
-			snake.setMovement(movement);
 			
 			if ( ! isIn(headPosition))
 				cut.add(snake);
@@ -180,13 +169,11 @@ public class World extends JPanel {
 	{
 		remove(snake.getBody());
 		this.snakes.remove(snake);
-		this.futureMovements.remove(snake);
 	}
 	
 	public void add(Snake snake)
 	{
 		this.snakes.add(snake);
-		this.futureMovements.put(snake, snake.getMovement());
 		
 		for (Point point : snake.getBody())
 			this.bodies.put(point, snake);		
@@ -194,8 +181,8 @@ public class World extends JPanel {
 	
 	public Point findEmptyCell() throws FullWorldException
 	{
-		int width = this.tiles.getWidth();
-		int height = this.tiles.getHeight();
+		int width = this.tiles.width;
+		int height = this.tiles.height;
 		
 		Random rnd = new Random();
 		int x = rnd.nextInt(width);
@@ -227,7 +214,7 @@ public class World extends JPanel {
 	
 	@Override
 	public java.awt.Dimension getPreferredSize() {
-		return new java.awt.Dimension(this.screen.getWidth(), this.screen.getHeight());
+		return new java.awt.Dimension(this.screen.width, this.screen.height);
 	}
 	
 	@Override
@@ -236,7 +223,7 @@ public class World extends JPanel {
 		super.paintComponent(graphics);
 		
 		graphics.setColor(new Color(225, 255, 225));
-		graphics.fillRect(0, 0, this.screen.getWidth(), this.screen.getHeight());
+		graphics.fillRect(0, 0, this.screen.width, this.screen.height);
 		
 		for (Snake snake : this.snakes)
 			if (snake != null)
@@ -244,7 +231,7 @@ public class World extends JPanel {
 			graphics.setColor(snake.getColor());
 			
 			for (Point point : snake.getBody())
-				graphics.fillRect(point.getX() * World.MULTIPLIER, point.getY() * World.MULTIPLIER, World.MULTIPLIER, World.MULTIPLIER);
+				graphics.fillRect(point.x * World.MULTIPLIER, point.y * World.MULTIPLIER, World.MULTIPLIER, World.MULTIPLIER);
 		}
 		
 		for (Eatable eatable : this.eatables.values())

@@ -16,6 +16,7 @@ public class Snake implements Serializable {
 	private Color color;
 	private LinkedList<Point> body = new LinkedList<Point>();
 	private transient Movement movement;
+	private transient Movement nextMovement;
 	
 	public Snake(Color color, Point initial, Movement movement)
 	{
@@ -23,6 +24,7 @@ public class Snake implements Serializable {
 		this.color = color;
 		this.body.add(initial);
 		this.movement = movement;
+		this.nextMovement = movement;
 	}
 	
 	public Snake(Color color, Point initial) {
@@ -70,18 +72,27 @@ public class Snake implements Serializable {
 		return this.movement;
 	}
 	
-	public void setMovement(Movement movement) {
+	/*public void setMovement(Movement movement) {
+		this.movement = movement;
+	}*/
+	
+	public Movement getNextMovement() {
+		return this.nextMovement;
+	}
+	
+	public void setNextMovement(Movement movement) {
 		this.movement = movement;
 	}
 	
-	public void position(List<Point> body)
+	/*public void position(List<Point> body)
 	{
 		this.body.clear();
 		this.body.addAll(body);
-	}
+	}*/
 	
 	public void eat() {
-		this.body.addFirst(movement.from(this.body.getFirst()));
+		this.body.addFirst(this.nextMovement.from(this.body.getFirst()));
+		this.movement = this.nextMovement;
 	}
 	
 	public void move()
@@ -92,7 +103,7 @@ public class Snake implements Serializable {
 	
 	public void move(Movement movement)
 	{
-		this.movement = movement;
+		this.nextMovement = movement;
 		move();
 	}
 	
@@ -165,10 +176,10 @@ public class Snake implements Serializable {
 		{
 			switch (this)
 			{
-			case UP: return new Point(point.getX(), point.getY() - 1);
-			case DOWN: return new Point(point.getX(), point.getY() + 1);
-			case LEFT: return new Point(point.getX() - 1, point.getY());
-			case RIGHT: return new Point(point.getX() + 1, point.getY());
+			case UP: return new Point(point.x, point.y - 1);
+			case DOWN: return new Point(point.x, point.y + 1);
+			case LEFT: return new Point(point.x - 1, point.y);
+			case RIGHT: return new Point(point.x + 1, point.y);
 			}
 			
 			return null;

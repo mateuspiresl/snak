@@ -17,7 +17,7 @@ public abstract class Eatable {
 	}
 	
 	public Point normalizedPosition(Point position, int multiplier) {
-		return new Point(position.getX() * multiplier, position.getY() * multiplier);
+		return new Point(position.x * multiplier, position.y * multiplier);
 	}
 	
 	public abstract void draw(Graphics graphics);

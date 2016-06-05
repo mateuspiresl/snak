@@ -6,7 +6,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Random;
 
-import com.forbait.games.snake.Point;
+import com.forbait.games.util.Point;
 
 public class Snake implements Serializable {
 

@@ -1,6 +1,4 @@
-package com.forbait.games.snake;
-
-import com.forbait.games.util.Pair;
+package com.forbait.games.util;
 
 public class Point extends Pair<Integer, Integer> {
 

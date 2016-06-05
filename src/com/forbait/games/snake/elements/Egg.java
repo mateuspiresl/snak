@@ -3,8 +3,8 @@ package com.forbait.games.snake.elements;
 import java.awt.Color;
 import java.awt.Graphics;
 
-import com.forbait.games.snake.Point;
 import com.forbait.games.snake.World;
+import com.forbait.games.util.Point;
 
 public class Egg extends Eatable {
 
@@ -17,6 +17,11 @@ public class Egg extends Eatable {
 	{
 		graphics.setColor(Color.LIGHT_GRAY);
 		graphics.fillOval(super.getPosition().getX(), super.getPosition().getY(), World.MULTIPLIER, World.MULTIPLIER);
+	}
+	
+	@Override
+	public String toString() {
+		return "Egg { " + super.getPosition() + " }";
 	}
 
 }

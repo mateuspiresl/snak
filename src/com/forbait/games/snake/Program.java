@@ -16,6 +16,7 @@ import com.forbait.games.snake.ui.ClientsConnectionListener;
 import com.forbait.games.snake.ui.CreatePanel;
 import com.forbait.games.snake.ui.StartPanel;
 import com.forbait.games.snake.ui.WaitingClientsPanel;
+import com.forbait.games.util.Dimension;
 
 public class Program implements ActionListener { //ItemListener {
 	

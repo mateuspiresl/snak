@@ -10,10 +10,10 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
-import com.forbait.games.snake.Point;
 import com.forbait.games.snake.World;
 import com.forbait.games.snake.elements.Snake;
 import com.forbait.games.snake.ui.ClientsConnectionListener;
+import com.forbait.games.util.Point;
 import com.forbait.games.util.RandomColor;
 
 public class Server

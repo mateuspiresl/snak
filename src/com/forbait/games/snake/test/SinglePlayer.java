@@ -1,7 +1,7 @@
 package com.forbait.games.snake.test;
 
-import com.forbait.games.snake.Dimension;
 import com.forbait.games.snake.Game;
+import com.forbait.games.util.Dimension;
 
 public class SinglePlayer {
 

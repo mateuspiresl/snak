@@ -17,20 +17,21 @@ import com.forbait.games.snake.ui.CreatePanel;
 import com.forbait.games.snake.ui.StartPanel;
 import com.forbait.games.snake.ui.WaitingClientsPanel;
 
-public class Program extends JFrame implements ActionListener { //ItemListener {
-
+public class Program implements ActionListener { //ItemListener {
+	
 	private static Program INSTANCE = null;
 	public final static String PANEL_START = "start";
 	public final static String PANEL_CREATE = "create";
 	public final static String PANEL_WAITING = "waiting";
 	
+	private JFrame frame;
 	private JPanel cards;
 	private ClientsConnectionListener connectionListener;
 	
 	private Program()
 	{
-		super("Snak");
-		super.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		this.frame = new JFrame("Snak");
+		this.frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		
 		Program.INSTANCE = this;
 		
@@ -42,9 +43,9 @@ public class Program extends JFrame implements ActionListener { //ItemListener {
 		this.cards.add(new CreatePanel(), PANEL_CREATE);
 		this.cards.add(clientsPanel, PANEL_WAITING);
 		
-		super.add(this.cards, BorderLayout.CENTER);
-		super.pack();
-		super.setVisible(true);
+		this.frame.add(this.cards, BorderLayout.CENTER);
+		this.frame.pack();
+		this.frame.setVisible(true);
 	}
 	
 	public static Program get()
@@ -57,6 +58,10 @@ public class Program extends JFrame implements ActionListener { //ItemListener {
 	{
 		CardLayout cl = (CardLayout) this.cards.getLayout();
 		cl.show(this.cards, panelName);
+	}
+	
+	public void setWindowVisibility(boolean visible) {
+		this.frame.setVisible(visible);
 	}
 
 	@Override
@@ -112,7 +117,7 @@ public class Program extends JFrame implements ActionListener { //ItemListener {
 		else
 		{
 			new Game(numPlayers, new Dimension(width, height), null);
-			super.setVisible(false);
+			this.frame.setVisible(false);
 		}
 	}
 	

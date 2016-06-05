@@ -19,7 +19,8 @@ import com.forbait.games.snake.elements.Snake.Movement;
 public class Game extends JFrame implements KeyListener, ActionListener {
 
 	private final int FPS = 1000 / 8;
-	
+
+	private JFrame frame;
 	private Snake localPlayer;
 	private World world;
 	private Timer loop;
@@ -36,23 +37,23 @@ public class Game extends JFrame implements KeyListener, ActionListener {
 		System.out.println("Creating " + localPlayer);
 		this.localPlayer = localPlayer;
 		this.world.add(localPlayer);
-		super.addKeyListener(this);
+		this.frame.addKeyListener(this);
 		
 		// this.world.add(new Snake(Color.BLUE, new Point(150, 150)));
 	}
 	
 	public Game(int numPlayers, Dimension tiles)
 	{
-		super("Snak - Game");
-		super.setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
-		super.setLayout(new BorderLayout());
+		this.frame = new JFrame("Snak - Game");
+		this.frame.setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
+		this.frame.setLayout(new BorderLayout());
 		
 		this.world = new World(tiles);	
 		
-		super.add(this.world);
-		super.pack();
-		super.setLocationRelativeTo(null);
-		super.setVisible(true);
+		this.frame.add(this.world);
+		this.frame.pack();
+		this.frame.setLocationRelativeTo(null);
+		this.frame.setVisible(true);
 		
 		// Use threads here!
 		this.loop = new Timer(FPS, this);
@@ -111,15 +112,15 @@ public class Game extends JFrame implements KeyListener, ActionListener {
 			this.loop.stop();
 			this.dispose();
 			this.setVisible(false);
-			Program.get().setVisible(true);
+			Program.get().setWindowVisibility(true);
 		}
 		
 		Set<Snake> dead = this.world.move();
 		
 		if (dead.contains(this.localPlayer))
-			super.removeKeyListener(this);
+			this.frame.removeKeyListener(this);
 		
-		super.repaint();
+		this.frame.repaint();
 	}
 	
 	@Override

@@ -15,6 +15,7 @@ import javax.swing.JPanel;
 import com.forbait.games.snake.elements.Eatable;
 import com.forbait.games.snake.elements.Snake;
 import com.forbait.games.snake.elements.Snake.Movement;
+import com.forbait.games.snake.elements.SnakePiece;
 import com.forbait.games.snake.exceptions.FullWorldException;
 import com.forbait.games.snake.exceptions.OccupiedCellException;
 import com.forbait.games.util.Dimension;
@@ -23,7 +24,7 @@ import com.forbait.games.util.Point;
 @SuppressWarnings("serial")
 public class World extends JPanel {
 
-	public static final int MULTIPLIER = 10;
+	public static final int MULTIPLIER = 14;
 	
 	private List<Snake> snakes = new ArrayList<Snake>();
 	private Map<Point, Snake> bodies = new HashMap<Point, Snake>();
@@ -81,7 +82,7 @@ public class World extends JPanel {
 		for (Snake snake : this.snakes)
 		{
 			Movement movement = this.futureMovements.get(snake);
-			System.out.println("Move: " + movement);
+			// System.out.println("Move: " + movement);
 			
 			Point headPosition = movement.from(snake.getHead());
 			Snake enemy = this.bodies.get(headPosition);
@@ -96,7 +97,7 @@ public class World extends JPanel {
 						movement = snake.getMovement();
 					
 					this.futureMovements.put(snake, movement);
-					System.out.println("New move: " + movement);
+					// System.out.println("New move: " + movement);
 					
 					headPosition = movement.from(snake.getHead());
 					enemy = this.bodies.get(headPosition);
@@ -116,11 +117,13 @@ public class World extends JPanel {
 			else if (enemy != null && ! enemy.getTail().equals(headPosition))
 				destroy.add(snake);
 			
-			else if (futureHeads.containsKey(headPosition))
-			{
+			else if ( ! futureHeads.containsKey(headPosition))
+				futureHeads.put(headPosition, snake);
+			
+			else {
 				destroy.add(snake);
 				destroy.add(futureHeads.get(headPosition));
-			}
+			} 
 		}
 		
 		for (Snake snake : cut)
@@ -131,11 +134,35 @@ public class World extends JPanel {
 				destroy.add(snake);
 		}
 		
-		for (Snake snake : cut)
+		for (Snake snake : destroy)
+		{
 			remove(snake);
+			
+			// 20 to 80% of the body
+			int numPieces = (int) (snake.getSize() * (0.2 + new Random().nextDouble() * 0.6));
+			
+			while (numPieces-- > 0)
+				add(new SnakePiece(findEmptyCell()));
+		}
 		
-		for (Snake snake : this.snakes)
-			snake.move(this.futureMovements.get(snake));
+//		for (Snake snake : this.snakes)
+//			snake.move(this.futureMovements.get(snake));
+		
+		for (Point head : futureHeads.keySet())
+		{
+			Snake snake = futureHeads.get(head);
+			if (destroy.contains(snake)) continue;
+			
+			System.out.println(futureHeads);
+			System.out.println(this.eatables);
+			
+			if (this.eatables.containsKey(head))
+			{
+				this.eatables.remove(head);
+				snake.eat();
+			}
+			else snake.move();
+		}
 		
 		return destroy;
 	}
@@ -162,7 +189,7 @@ public class World extends JPanel {
 			this.bodies.put(point, snake);		
 	}
 	
-	public Point getEmptyPosition() throws FullWorldException
+	public Point findEmptyCell() throws FullWorldException
 	{
 		int width = this.tiles.getWidth();
 		int height = this.tiles.getHeight();
@@ -170,12 +197,11 @@ public class World extends JPanel {
 		Random rnd = new Random();
 		int x = rnd.nextInt(width);
 		int y = rnd.nextInt(height);
-		Point position = null;
 		
 		for (int xVar = 0; xVar < width; xVar++) {
 			for (int yVar = 0; yVar < height; yVar++)
 			{
-				position = new Point((x + xVar) % width, (y + yVar) % height);
+				Point position = new Point((x + xVar) % width, (y + yVar) % height);
 				if ( ! this.bodies.containsKey(position) && ! this.eatables.containsKey(position))
 					return position;
 			}

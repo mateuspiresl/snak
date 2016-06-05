@@ -26,7 +26,7 @@ public class WorldTest {
 		for (int i = 0; i < 30 * 30; i++)
 		{
 			try {
-				p = w.getEmptyPosition();
+				p = w.findEmptyCell();
 			} catch (FullWorldException fwe) {
 				return false;
 			}

@@ -37,7 +37,7 @@ public class Game implements KeyListener, ActionListener {
 		
 		localPlayer.eat();
 		
-		System.out.println("Creating " + localPlayer);
+		// System.out.println("Creating " + localPlayer);
 		this.localPlayer = localPlayer;
 		this.world.add(localPlayer);
 		this.frame.addKeyListener(this);
@@ -46,7 +46,7 @@ public class Game implements KeyListener, ActionListener {
 		if (numEatables == 0) numEatables = 1;
 		
 		for (int i = 0; i < numEatables; i++)
-			this.world.add(new Egg(this.world.getEmptyPosition()));
+			this.world.add(new Egg(this.world.findEmptyCell()));
 		
 		// this.world.add(new Snake(Color.BLUE, new Point(150, 150)));
 	}

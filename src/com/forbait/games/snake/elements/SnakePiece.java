@@ -6,9 +6,9 @@ import java.awt.Graphics;
 import com.forbait.games.snake.World;
 import com.forbait.games.util.Point;
 
-public class Egg extends Eatable {
+public class SnakePiece extends Eatable {
 
-	public Egg(Point position) {
+	public SnakePiece(Point position) {
 		super(position);
 	}
 
@@ -17,13 +17,8 @@ public class Egg extends Eatable {
 	{
 		Point normalized = super.normalizedPosition(super.getPosition(), World.MULTIPLIER);
 		
-		graphics.setColor(Color.LIGHT_GRAY);
-		graphics.fillOval(normalized.getX(), normalized.getY(), World.MULTIPLIER, World.MULTIPLIER);
-	}
-	
-	@Override
-	public String toString() {
-		return "Egg { " + super.getPosition() + " }";
+		graphics.setColor(Color.GREEN);
+		graphics.fillRect(normalized.getX(), normalized.getY(), World.MULTIPLIER, World.MULTIPLIER);
 	}
 
 }

@@ -27,6 +27,8 @@ public class Game implements KeyListener, ActionListener {
 	private Snake localPlayer;
 	private World world;
 	private Timer loop;
+	
+	private int numEatables;
 
 	public Game(int numPlayers, Dimension tiles, Snake localPlayer)
 	{
@@ -42,7 +44,7 @@ public class Game implements KeyListener, ActionListener {
 		this.world.add(localPlayer);
 		this.frame.addKeyListener(this);
 		
-		int numEatables = numPlayers / 2;
+		numEatables = numPlayers / 2;
 		if (numEatables == 0) numEatables = 1;
 		
 		for (int i = 0; i < numEatables; i++)
@@ -123,6 +125,9 @@ public class Game implements KeyListener, ActionListener {
 			// this.frame.setVisible(false);
 			Program.get().setWindowVisibility(true);
 		}
+		
+		for (int i = this.world.countEatables(); i < numEatables; i++)
+			this.world.add(new Egg(this.world.findEmptyCell()));
 		
 		Set<Snake> dead = this.world.move();
 		

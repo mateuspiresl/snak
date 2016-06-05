@@ -2,7 +2,6 @@ package com.forbait.games.snake;
 
 import java.awt.BorderLayout;
 import java.awt.CardLayout;
-import java.awt.Color;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.IOException;
@@ -12,7 +11,6 @@ import javax.swing.JPanel;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
 
-import com.forbait.games.snake.elements.Snake;
 import com.forbait.games.snake.server.Server;
 import com.forbait.games.snake.ui.ClientsConnectionListener;
 import com.forbait.games.snake.ui.CreatePanel;
@@ -113,7 +111,7 @@ public class Program extends JFrame implements ActionListener { //ItemListener {
 		}
 		else
 		{
-			new Game(numPlayers, width, height, null);
+			new Game(numPlayers, new Dimension(width, height), null);
 			super.setVisible(false);
 		}
 	}

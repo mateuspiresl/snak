@@ -1,7 +1,6 @@
 package com.forbait.games.snake;
 
 import java.awt.Color;
-import java.awt.Dimension;
 import java.awt.Graphics;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -15,7 +14,6 @@ import javax.swing.JPanel;
 import com.forbait.games.snake.elements.Eatable;
 import com.forbait.games.snake.elements.Snake;
 import com.forbait.games.snake.elements.Snake.Movement;
-import com.forbait.games.util.Point;
 
 @SuppressWarnings("serial")
 public class World extends JPanel {
@@ -27,38 +25,28 @@ public class World extends JPanel {
 	private Map<Point, Eatable> eatables = new HashMap<Point, Eatable>();
 	private Map<Snake, Movement> futureMovements = new HashMap<Snake, Movement>();
 	
-	private int horizontalTiles, verticalTiles;
-	private int width, height;
+	private Dimension tiles;
+	private Dimension screen;
 	
-	public World(int horizontalTiles, int verticalTiles)
+	public World(Dimension tiles)
 	{
-		this.horizontalTiles = horizontalTiles;
-		this.verticalTiles = verticalTiles;
-		this.width = horizontalTiles * MULTIPLIER;
-		this.height = verticalTiles * MULTIPLIER;
+		this.tiles = tiles;
+		this.screen = new Dimension(tiles.getWidth() * MULTIPLIER, tiles.getHeight() * MULTIPLIER);
 	}
 	
-	public int getHorizontalTiles() {
-		return this.horizontalTiles;
+	public Dimension getTiles() {
+		return this.tiles;
 	}
-	
-	public int getVerticalTiles() {
-		return this.verticalTiles;
-	}
-	
-	public int getWidth() {
-		return this.width * MULTIPLIER;
-	}
-	
-	public int getHeight() {
-		return this.height * MULTIPLIER;
+
+	public Dimension getScreen() {
+		return this.screen;
 	}
 	
 	public List<Snake> getSnakes() {
 		return this.snakes;
 	}
 	
-	public void addMovement(Snake snake, Snake.Movement movement) {
+	public void setMovement(Snake snake, Snake.Movement movement) {
 		this.futureMovements.put(snake, movement);
 	}
 	
@@ -71,10 +59,7 @@ public class World extends JPanel {
 	}
 	
 	public boolean isIn(Point position) {
-		return 	position.getX() >= 0 &&
-				position.getX() < this.width &&
-				position.getY() >= 0 &&
-				position.getY() < this.height;
+		return this.tiles.contains(position);
 	}
 	
 	public Set<Snake> move()
@@ -168,8 +153,8 @@ public class World extends JPanel {
 	}
 	
 	@Override
-	public Dimension getPreferredSize() {
-		return new Dimension(this.width, this.height);
+	public java.awt.Dimension getPreferredSize() {
+		return new java.awt.Dimension(this.tiles.getWidth(), this.tiles.getHeight());
 	}
 	
 	@Override
@@ -177,10 +162,10 @@ public class World extends JPanel {
 	{
 		super.paintComponent(graphics);
 		
-		System.out.println("Drawing " + this.snakes.get(0));
+		// System.out.println("Drawing " + this.snakes.get(0));
 		
 		graphics.setColor(Color.WHITE);
-		graphics.fillRect(0, 0, this.width, this.height);
+		graphics.fillRect(0, 0, this.tiles.getWidth(), this.tiles.getHeight());
 		
 		for (Snake snake : this.snakes)
 			if (snake != null)

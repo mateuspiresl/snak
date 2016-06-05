@@ -2,7 +2,7 @@ package com.forbait.games.snake.elements;
 
 import java.awt.Graphics;
 
-import com.forbait.games.util.Point;
+import com.forbait.games.snake.Point;
 
 public abstract class Eatable {
 

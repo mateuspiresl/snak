@@ -154,7 +154,7 @@ public class World extends JPanel {
 	
 	@Override
 	public java.awt.Dimension getPreferredSize() {
-		return new java.awt.Dimension(this.tiles.getWidth(), this.tiles.getHeight());
+		return new java.awt.Dimension(this.screen.getWidth(), this.screen.getHeight());
 	}
 	
 	@Override
@@ -165,7 +165,7 @@ public class World extends JPanel {
 		// System.out.println("Drawing " + this.snakes.get(0));
 		
 		graphics.setColor(Color.WHITE);
-		graphics.fillRect(0, 0, this.tiles.getWidth(), this.tiles.getHeight());
+		graphics.fillRect(0, 0, this.screen.getWidth(), this.screen.getHeight());
 		
 		for (Snake snake : this.snakes)
 			if (snake != null)

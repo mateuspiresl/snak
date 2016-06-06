@@ -1,15 +1,15 @@
 package com.forbait.games.snake;
 
 import java.awt.BorderLayout;
-import java.awt.Color;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+import java.awt.event.WindowEvent;
+import java.awt.event.WindowListener;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Random;
 import java.util.Set;
 
 import javax.swing.JFrame;
@@ -19,10 +19,12 @@ import com.forbait.games.snake.elements.Bot;
 import com.forbait.games.snake.elements.Egg;
 import com.forbait.games.snake.elements.Snake;
 import com.forbait.games.snake.elements.Snake.Movement;
+import com.forbait.games.snake.elements.SnakeColors;
+import com.forbait.games.snake.exceptions.FullWorldException;
 import com.forbait.games.util.Dimension;
 import com.forbait.games.util.Point;
 
-public class Game implements KeyListener, ActionListener {
+public class Game implements KeyListener, ActionListener, WindowListener {
 
 	private final int FPS = 1000 / 8;
 
@@ -30,16 +32,17 @@ public class Game implements KeyListener, ActionListener {
 	private Snake localPlayer;
 	private World world;
 	private Timer loop;
+	private int numPlayers;
 	
 	// private int numEatables;
 	private List<Bot> bots = new ArrayList<Bot>();
-
+	
 	public Game(int numPlayers, Dimension tiles, Snake localPlayer)
 	{
 		this(numPlayers, tiles);
 		
 		if (localPlayer == null)
-			localPlayer = createRandomSnake(Color.BLACK);
+			localPlayer = createSnake(Snake.class);
 		
 		localPlayer.eat();
 		
@@ -48,18 +51,13 @@ public class Game implements KeyListener, ActionListener {
 		this.world.add(localPlayer);
 		this.frame.addKeyListener(this);
 		
-//		Bot enemy;
-//		enemy = new Bot(Color.BLUE, this.world.findEmptyCell(), Movement.random(), this.world);
-//		enemy.eat();
-//		this.world.add(enemy);
-//		this.bots.add(enemy);
-//		System.out.println("Creating " + enemy);
-//		
-//		enemy = new Bot(Color.RED, this.world.findEmptyCell(), Movement.random(), this.world);
-//		enemy.eat();
-//		this.world.add(enemy);
-//		this.bots.add(enemy);
-//		System.out.println("Creating " + enemy);
+		// Adds bots
+		for (int i = 1; i < numPlayers; i++)
+		{
+			Bot bot = (Bot) createSnake(Bot.class);
+			this.world.add(bot);
+			this.bots.add(bot);
+		}
 		
 		// Number of eggs is equal to the number of players
 		// Starts with an extra egg
@@ -74,11 +72,13 @@ public class Game implements KeyListener, ActionListener {
 		this.frame.setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
 		this.frame.setLayout(new BorderLayout());
 		
+		this.numPlayers = numPlayers;
 		this.world = new World(tiles);	
 		
 		this.frame.add(this.world);
 		this.frame.pack();
 		this.frame.setLocationRelativeTo(null);
+		this.frame.addWindowListener(this);
 		this.frame.setVisible(true);
 		
 		// TODO Use threads here!
@@ -86,50 +86,53 @@ public class Game implements KeyListener, ActionListener {
 		this.loop.start();
 	}
 	
-	public Snake createRandomSnake(Color color)
+	public <T extends Snake> T createSnake(Class<T> type)
 	{
-		Random rnd = new Random();
-
-		int x = rnd.nextInt(this.world.getTiles().width);
-		int y = rnd.nextInt(this.world.getTiles().height);
+		int numSnakes = this.world.countSnakes(); 
 		
-		/* Random rnd = new Random();
-		int quad = rnd.nextInt(4);
-		
-		int x = 0, y = 0;
-		Snake.Movement movement = null;
+		if (numSnakes == numPlayers)
+			throw new FullWorldException("The number of players reached the maximum (" + this.numPlayers + ")");
 		
 		int width = this.world.getTiles().width;
 		int height = this.world.getTiles().height;
 		
-		switch (quad)
+		boolean right = (numSnakes & 0x3) == 0x2 || (numSnakes & 0x3) == 0x1;
+		
+		System.out.println(numSnakes + " " + (numSnakes & 0x3) + " " + right);
+		
+		int x = (int) (width * 0.1F);
+		if (right) x = width - x;
+		
+		int y = (1 + numSnakes / 4) * (height / 5) + (right ? 1 : 0);
+		if (numSnakes % 2 != 0) y = height - y;
+		
+		if (type.equals(Bot.class))
 		{
-		case 0:
-		case 2:	x = (int) (width * 0.06) + rnd.nextInt((int) (width * 0.60)); break;
-		case 1:
-		case 3: x = (int) (width * 0.4 ) + rnd.nextInt((int) (width * 0.60));
+			Bot bot = new Bot(
+					SnakeColors.getColor(numSnakes),
+					new Point(x, y),
+					right ? Movement.LEFT : Movement.RIGHT,
+					this.world
+				);
+			bot.eat();
+			return type.cast(bot);
 		}
-		
-		switch (quad)
+		else
 		{
-		case 0:
-		case 1:	y = (int) (height * 0.06) + rnd.nextInt((int) (height * 0.60)); break;
-		case 2:
-		case 3: y = (int) (height * 0.34) + rnd.nextInt((int) (height * 0.60));
+			Snake snake = new Snake(
+					SnakeColors.getColor(numSnakes),
+					new Point(x, y),
+					right ? Movement.LEFT : Movement.RIGHT
+				);
+			return type.cast(snake);
 		}
-		
-		switch (quad)
-		{
-		case 0: movement = rnd.nextBoolean() ? Snake.Movement.DOWN : Snake.Movement.RIGHT; break;
-		case 1:	movement = rnd.nextBoolean() ? Snake.Movement.DOWN : Snake.Movement.LEFT; break;
-		case 2: movement = rnd.nextBoolean() ? Snake.Movement.UP : Snake.Movement.RIGHT; break;
-		case 3: movement = rnd.nextBoolean() ? Snake.Movement.UP : Snake.Movement.LEFT; break;
-		default: movement = null;
-		}
-		
-		return new Snake(Color.BLACK, new Point(x, y), movement);*/
-		
-		return null;
+	}
+	
+	public void close()
+	{
+		this.loop.stop();
+		this.frame.dispose();
+		Program.get().setWindowVisibility(true);
 	}
 	
 	@Override
@@ -137,12 +140,7 @@ public class Game implements KeyListener, ActionListener {
 	{
 		// Game oer if there is no snake alive
 		if (this.world.countSnakes() == 0)
-		{
-			this.loop.stop();
-			this.frame.dispose();
-			// this.frame.setVisible(false);
-			Program.get().setWindowVisibility(true);
-		}
+			close();
 		
 		// Keep the amount of eggs
 		int numEatables = this.world.countSnakes();
@@ -151,7 +149,7 @@ public class Game implements KeyListener, ActionListener {
 		
 		// Makes moves and paint
 		Set<Snake> dead = this.world.move();
-		this.frame.repaint();
+		this.world.repaint();
 		
 		// Turn off keyboard listener if player's snake is dead
 		if (dead.contains(this.localPlayer))
@@ -190,11 +188,34 @@ public class Game implements KeyListener, ActionListener {
 			this.localPlayer.setNextMovement(Movement.RIGHT);
 		}
 	}
+	
+	@Override
+	public void windowClosing(WindowEvent event) {
+		close();
+	}
 
 	@Override
 	public void keyReleased(KeyEvent event) { }
 
 	@Override
 	public void keyTyped(KeyEvent event) { }
+	
+	@Override
+	public void windowActivated(WindowEvent event) { }
+
+	@Override
+	public void windowClosed(WindowEvent event) { }
+
+	@Override
+	public void windowDeactivated(WindowEvent event) { }
+
+	@Override
+	public void windowDeiconified(WindowEvent event) { }
+
+	@Override
+	public void windowIconified(WindowEvent event) { }
+
+	@Override
+	public void windowOpened(WindowEvent event) { }
 
 }

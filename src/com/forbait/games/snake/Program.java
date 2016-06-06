@@ -4,17 +4,25 @@ import java.awt.BorderLayout;
 import java.awt.CardLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.io.IOException;
 
+import javax.swing.JDialog;
 import javax.swing.JFrame;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
 
+import com.forbait.games.snake.Command.Type;
 import com.forbait.games.snake.server.Server;
 import com.forbait.games.snake.ui.ClientsConnectionListener;
 import com.forbait.games.snake.ui.CreatePanel;
 import com.forbait.games.snake.ui.StartPanel;
+import com.forbait.games.snake.ui.WaitDialog;
 import com.forbait.games.snake.ui.WaitingClientsPanel;
 import com.forbait.games.util.Dimension;
 
@@ -64,6 +72,56 @@ public class Program implements ActionListener { //ItemListener {
 	public void setWindowVisibility(boolean visible) {
 		this.frame.setVisible(visible);
 	}
+	
+	public int[] openCreateGameDiaglog()
+	{
+		final JOptionPane optionPane = new JOptionPane(
+				"The only way to close this dialog is by\n"
+				+ "pressing one of the following buttons.\n"
+				+ "Do you understand?",
+				JOptionPane.QUESTION_MESSAGE,
+				JOptionPane.YES_NO_OPTION);
+
+		final JDialog dialog = new JDialog(
+				frame, 
+				"Click a button",
+				true
+			);
+		dialog.setContentPane(optionPane);
+		dialog.setDefaultCloseOperation(
+			JDialog.DO_NOTHING_ON_CLOSE);
+		dialog.addWindowListener(new WindowAdapter() {
+			public void windowClosing(WindowEvent we) {
+				// return null
+			}
+		});
+		optionPane.addPropertyChangeListener(
+			new PropertyChangeListener() {
+				public void propertyChange(PropertyChangeEvent e) {
+					String prop = e.getPropertyName();
+		
+					if (dialog.isVisible() 
+							&& (e.getSource() == optionPane)
+							&& (prop.equals(JOptionPane.VALUE_PROPERTY))) {
+						//If you were going to check something
+						//before closing the window, you'd do
+						//it here.
+						dialog.setVisible(false);
+					}
+				}
+			});
+		dialog.pack();
+		dialog.setVisible(true);
+		
+		int value = ((Integer) optionPane.getValue()).intValue();
+		if (value == JOptionPane.YES_OPTION) {
+			// return data
+		} else if (value == JOptionPane.NO_OPTION) {
+			// return null
+		}
+		
+		return null;
+	}
 
 	@Override
 	public void actionPerformed(ActionEvent event)
@@ -89,28 +147,33 @@ public class Program implements ActionListener { //ItemListener {
 	
 	public void createGame(int numPlayers, int numBots, int dimension)
 	{
-		Game game = new Game(numPlayers, new Dimension(dimension, dimension), numBots);
+		final Game game = new Game(numPlayers, new Dimension(dimension, dimension), numBots);
 		
 		if (numPlayers > 1) try
 		{
 			this.connectionListener.setClientsCounter(numPlayers, 1);
 			changePanel(PANEL_WAITING);
 			
-			Server server = new Server(8001, numPlayers - 1, this.connectionListener);
+			final WaitDialog dialog = new WaitDialog();
+			final Server server = new Server(8001, numPlayers - 1);
 			
 			new Thread(new Runnable() {
-				private Server server;
-				
-				public Runnable setServer(Server server) {
-					this.server = server;
-					return this;
-				}
-				
 				@Override
 				public void run() {
-					server.waitClients(game);
+					server.waitClients(game, dialog);
 				}
-			}.setServer(server)).start();
+			}).start();
+			
+			if (dialog.getAnswer())
+			{
+				server.start();
+				game.start();
+			}
+			else
+			{
+				server.sendCommand(new Command(Type.END));
+				server.close();
+			}
 		}
 		catch (IOException e) {
 			e.printStackTrace();

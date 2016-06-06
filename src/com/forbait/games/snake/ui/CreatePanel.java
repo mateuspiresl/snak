@@ -14,6 +14,7 @@ import javax.swing.JPanel;
 
 import com.forbait.games.snake.Program;
 
+@SuppressWarnings("serial")
 public class CreatePanel extends JPanel implements ActionListener {
 	
 	public static final String ACTION_CREATE = "create_create";

@@ -20,50 +20,62 @@ public class Server {
 	private List<Client> clients = new ArrayList<Client>();
 	
 	private int numClients;
-	private ClientsConnectionListener listener;
 	
-	public Server(int port, int numClients, ClientsConnectionListener listener) throws IOException
+	public Server(int port, int numClients) throws IOException
 	{
-		// this.port = port;
 		this.server = new ServerSocket(port);
 		this.executor = Executors.newFixedThreadPool(numClients);
-		
 		this.numClients = numClients;
-		this.listener = listener;
 	}
 	
-	public void waitClients(GameSettings game)
+	public void waitClients(GameSettings game, ClientsConnectionListener listener)
 	{
+		listener.setHostAddress(this.server.getInetAddress().getHostAddress());
+		listener.setClientsCounter(this.numClients, 1);
+		
 		while (this.clients.size() < this.numClients) try
 		{
 			Client client = new Client(this.server.accept());
 			client.setSnake(game.createSnake(Snake.class));
 			
 			this.clients.add(client);
-			this.listener.clientConnected();
+			listener.clientConnected();
 		}
 		catch (IOException ioe) {
 			ioe.printStackTrace();
+			listener.clientConnected();
 		}
-		
-		// TODO Ask to start and hide window
-		
-		for (Client client : this.clients)
-			this.executor.submit(client);
-		
-		game.start();
 	}
 	
-	public void sendFrame(Snake[] snakes)
+	public void start()
 	{
-		Command frame = new Command(Type.FRAME, snakes);
-		
+		for (Client client : this.clients)
+			this.executor.submit(client);
+	}
+	
+	public void sendFrame(Snake[] snakes) {
+		sendCommand(new Command(Type.FRAME, snakes));
+	}
+	
+	public void sendCommand(Command cmd)
+	{
 		for (Client client : this.clients) try {
-			client.sendFrame(frame);
+			client.sendCommand(cmd);
 		}
 		catch (IOException e) {
 			e.printStackTrace();
 		}
 	}
 	
+	public void close()
+	{
+		for (Client client : this.clients)
+			client.close();
+		
+		try {
+			this.server.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
 }

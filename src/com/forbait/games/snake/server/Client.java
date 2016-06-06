@@ -28,17 +28,25 @@ public class Client implements Runnable {
 		this.oos.writeObject(snake);
 	}
 	
-	public void sendFrame(Command frame) throws IOException {
-		this.oos.writeObject(frame);
+	public void sendCommand(Command cmd) throws IOException {
+		this.oos.writeObject(cmd);
 	}
 	
-	/*public Snake getSnake() {
-		return this.snake;
-	}*/
+	public void close()
+	{
+		try {
+			this.oos.close();
+			this.client.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
 	
 	@Override
 	public void run()
 	{
+		ObjectInputStream ois = null;
+		
 		try {
 			if (this.snake == null)
 			{
@@ -49,7 +57,7 @@ public class Client implements Runnable {
 			{
 				this.oos.writeObject(new Command(Type.START));
 				
-				ObjectInputStream ois = new ObjectInputStream(this.client.getInputStream());
+				ois = new ObjectInputStream(this.client.getInputStream());
 				
 				while (true) {
 					try {
@@ -65,6 +73,12 @@ public class Client implements Runnable {
 			}
 		} catch (IOException e) {
 			e.printStackTrace();
+		} finally {
+			if (ois != null) try {
+				ois.close();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
 		}
 	}
 	

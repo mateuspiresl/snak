@@ -1,10 +1,8 @@
 package com.forbait.games.snake.elements;
 
-import java.awt.Graphics;
-
 import com.forbait.games.util.Point;
 
-public abstract class Eatable {
+public abstract class Eatable extends Element {
 
 	private Point position;
 
@@ -15,11 +13,5 @@ public abstract class Eatable {
 	public Point getPosition() {
 		return position;
 	}
-	
-	public Point normalizedPosition(Point position, int multiplier) {
-		return new Point(position.x * multiplier, position.y * multiplier);
-	}
-	
-	public abstract void draw(Graphics graphics);
 	
 }

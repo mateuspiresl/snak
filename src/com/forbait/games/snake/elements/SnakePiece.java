@@ -1,7 +1,7 @@
 package com.forbait.games.snake.elements;
 
 import java.awt.Color;
-import java.awt.Graphics;
+import java.awt.Graphics2D;
 
 import com.forbait.games.snake.World;
 import com.forbait.games.util.Point;
@@ -13,7 +13,7 @@ public class SnakePiece extends Eatable {
 	}
 
 	@Override
-	public void draw(Graphics graphics)
+	public void draw(Graphics2D graphics)
 	{
 		Point normalized = super.normalizedPosition(super.getPosition(), World.MULTIPLIER);
 		

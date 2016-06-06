@@ -1,19 +1,23 @@
 package com.forbait.games.snake.elements;
 
 import java.awt.Color;
+import java.awt.Graphics2D;
 import java.io.Serializable;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Random;
 
+import com.forbait.games.snake.World;
 import com.forbait.games.util.Point;
 
-public class Snake implements Serializable {
+public class Snake extends Element implements Serializable {
 
 	private static int idGenerator = 1; 
 	
 	private transient int id;
-	private Color color;
+	private Color headColor;
+	private Color bodyColor;
 	private LinkedList<Point> body = new LinkedList<Point>();
 	private transient Movement movement;
 	private transient Movement nextMovement;
@@ -21,7 +25,8 @@ public class Snake implements Serializable {
 	public Snake(Color color, Point initial, Movement movement)
 	{
 		this.id = idGenerator++;
-		this.color = color;
+		this.headColor = color.darker();
+		this.bodyColor = color;
 		this.body.add(initial);
 		this.movement = movement;
 		this.nextMovement = movement;
@@ -44,8 +49,12 @@ public class Snake implements Serializable {
 		return this.id;
 	}
 	
-	public Color getColor() {
-		return this.color;
+	public Color getHeadColor() {
+		return this.headColor;
+	}
+	
+	public Color getBodyColor() {
+		return this.bodyColor;
 	}
 	
 	public int getSize() {
@@ -129,12 +138,16 @@ public class Snake implements Serializable {
 			return null;
 		}
 
-		public static Movement random()
+		public static Movement random(Random rnd)
 		{
 			int id = new Random().nextInt(4) - 1;
 			while (id == 0) id = -2;
 			
 			return Movement.parse(id);
+		}
+		
+		public static Movement random() {
+			return random(new Random());
 		}
 		
 		public Movement opposit() {
@@ -161,6 +174,26 @@ public class Snake implements Serializable {
 			
 			return null;
 		}
+	}
+
+	public void drawPiece(Graphics2D graphics, Point position)
+	{
+		position = Element.normalizedPosition(position, World.MULTIPLIER);
+		graphics.fillRect(position.x, position.y, World.MULTIPLIER, World.MULTIPLIER);
+	}
+	
+	@Override
+	public void draw(Graphics2D graphics)
+	{
+		Iterator<Point> it = this.body.iterator();
+		it.next();
+		
+		graphics.setColor(this.bodyColor);
+		while (it.hasNext())
+			drawPiece(graphics, it.next());
+		
+		graphics.setColor(this.headColor);
+		drawPiece(graphics, getHead());
 	}
 	
 }

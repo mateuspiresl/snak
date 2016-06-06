@@ -20,7 +20,6 @@ import com.forbait.games.snake.elements.Egg;
 import com.forbait.games.snake.elements.Snake;
 import com.forbait.games.snake.elements.Snake.Movement;
 import com.forbait.games.snake.elements.SnakeColors;
-import com.forbait.games.snake.exceptions.FullWorldException;
 import com.forbait.games.util.Dimension;
 import com.forbait.games.util.Point;
 
@@ -37,22 +36,17 @@ public class Game implements KeyListener, ActionListener, WindowListener {
 	// private int numEatables;
 	private List<Bot> bots = new ArrayList<Bot>();
 	
-	public Game(int numPlayers, Dimension tiles, Snake localPlayer)
+	public Game(int numPlayers, Dimension tiles, int numBots)
 	{
 		this(numPlayers, tiles);
 		
-		if (localPlayer == null)
-			localPlayer = createSnake(Snake.class);
-		
-		localPlayer.eat();
-		
 		System.out.println("Creating " + localPlayer);
-		this.localPlayer = localPlayer;
-		this.world.add(localPlayer);
+		this.localPlayer = createSnake(Snake.class);
+		this.world.add(this.localPlayer);
 		this.frame.addKeyListener(this);
 		
 		// Adds bots
-		for (int i = 1; i < numPlayers; i++)
+		for (int i = 1; i < numBots; i++)
 		{
 			Bot bot = (Bot) createSnake(Bot.class);
 			this.world.add(bot);
@@ -88,17 +82,12 @@ public class Game implements KeyListener, ActionListener, WindowListener {
 	
 	public <T extends Snake> T createSnake(Class<T> type)
 	{
-		int numSnakes = this.world.countSnakes(); 
-		
-		if (numSnakes == numPlayers)
-			throw new FullWorldException("The number of players reached the maximum (" + this.numPlayers + ")");
+		int numSnakes = this.world.countSnakes();
 		
 		int width = this.world.getTiles().width;
 		int height = this.world.getTiles().height;
 		
 		boolean right = (numSnakes & 0x3) == 0x2 || (numSnakes & 0x3) == 0x1;
-		
-		System.out.println(numSnakes + " " + (numSnakes & 0x3) + " " + right);
 		
 		int x = (int) (width * 0.1F);
 		if (right) x = width - x;
@@ -124,6 +113,7 @@ public class Game implements KeyListener, ActionListener, WindowListener {
 					new Point(x, y),
 					right ? Movement.LEFT : Movement.RIGHT
 				);
+			snake.eat();
 			return type.cast(snake);
 		}
 	}

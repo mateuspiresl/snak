@@ -80,14 +80,14 @@ public class Program implements ActionListener { //ItemListener {
 		case StartPanel.BUTTON_EXIT:
 			break;
 			
-		case CreatePanel.BUTTON_BACK:
+		case CreatePanel.ACTION_BACK:
 		default:
 			changePanel(PANEL_START);
 			break;
 		}
 	}
 	
-	public void createGame(int numPlayers, int width, int height)
+	public void createGame(int numPlayers, int numBots, int dimension)
 	{
 		if (numPlayers > 1) try
 		{
@@ -117,7 +117,8 @@ public class Program implements ActionListener { //ItemListener {
 		}
 		else
 		{
-			new Game(numPlayers, new Dimension(width, height), null);
+			System.out.println(numPlayers + " " + numBots + " " + dimension);
+			new Game(numPlayers, new Dimension(dimension, dimension), numBots);
 			this.frame.setVisible(false);
 		}
 	}

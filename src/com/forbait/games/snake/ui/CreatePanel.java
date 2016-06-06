@@ -3,109 +3,143 @@ package com.forbait.games.snake.ui;
 import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.Arrays;
 
 import javax.swing.BoxLayout;
+import javax.swing.DefaultComboBoxModel;
 import javax.swing.JButton;
+import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.JTextField;
-import javax.swing.text.AttributeSet;
-import javax.swing.text.BadLocationException;
-import javax.swing.text.Document;
-import javax.swing.text.DocumentFilter;
-import javax.swing.text.PlainDocument;
 
 import com.forbait.games.snake.Program;
 
 public class CreatePanel extends JPanel implements ActionListener {
 	
-	public static final String BUTTON_BACK = "create_back";
+	public static final String ACTION_CREATE = "create_create";
+	public static final String ACTION_BACK = "create_back";
 	
-	private Program program;
-	private JTextField	numPlayersField,
-						widthField,
-						heightField;
+	private JComboBox<Integer>	numPlayersList,
+								numBotsList,
+								dimensionsList;
+	private int numPlayers = 1,
+				numBots = 0,
+				dimension = 15;
+	
+	private final Integer[] PLAYERS = new Integer[] { 1, 2, 3, 4, 5, 6, 7, 8 };
+	private final Integer[] BOTS = new Integer[] { 0, 1, 2, 3, 4, 5, 6, 7 };
+	private final Integer[] DIMENSIONS = new Integer[] { 40, 35, 30, 25, 20, 15, 10 };
 	
 	public CreatePanel() {
 		super();
 		super.setLayout(new BoxLayout(this, BoxLayout.PAGE_AXIS));
 		
-		numPlayersField = new JTextField();
-		((PlainDocument) numPlayersField.getDocument()).setDocumentFilter(new NumbersFilter(2));
-		numPlayersField.setColumns(2);
-		numPlayersField.addActionListener(this);
-		numPlayersField.setText("4");
+		this.numPlayersList = new JComboBox<Integer>(PLAYERS);
+		this.numBotsList = new JComboBox<Integer>(BOTS);
+		this.dimensionsList = new JComboBox<Integer>(DIMENSIONS);
 		
-		widthField = new JTextField();
-		((PlainDocument) widthField.getDocument()).setDocumentFilter(new NumbersFilter(3));
-		widthField.setColumns(3);
-		widthField.addActionListener(this);
-		widthField.setText("30");
-		
-		heightField = new JTextField();
-		((PlainDocument) heightField.getDocument()).setDocumentFilter(new NumbersFilter(3));
-		heightField.setColumns(3);
-		heightField.addActionListener(this);
-		heightField.setText("30");
+		this.numPlayersList.addActionListener(this);
+		this.numBotsList.addActionListener(this);		
+		this.dimensionsList.addActionListener(this);
+
+		this.numBotsList.setSelectedIndex(0);
+		this.numPlayersList.setSelectedIndex(2);
+		this.dimensionsList.setSelectedIndex(5);
 		
 		JButton createButton = new JButton("Criar");
+		createButton.setActionCommand(ACTION_CREATE);
 		createButton.addActionListener(this);
+		
 		JButton backButton = new JButton("Voltar");
-		backButton.setActionCommand(BUTTON_BACK);
+		backButton.setActionCommand(ACTION_BACK);
 		backButton.addActionListener(Program.get());
 		
 		// Insertion
 		
-		JPanel topBlock = new JPanel(new FlowLayout());
-		topBlock.add(new JLabel("Número de jogadores:"));
-		topBlock.add(numPlayersField);
+		JPanel block;
 		
-		JPanel middleBlock = new JPanel(new FlowLayout());
-		middleBlock.add(new JLabel("Tamanho:"));
-		middleBlock.add(widthField);
-		middleBlock.add(new JLabel("x"));
-		middleBlock.add(heightField);
+		block = new JPanel(new FlowLayout());
+		block.add(new JLabel("Players:"));
+		block.add(this.numPlayersList);
+		super.add(block);
 		
-		JPanel bottomBlock = new JPanel(new FlowLayout());
-		bottomBlock.add(backButton);
-		bottomBlock.add(createButton);
+		block = new JPanel(new FlowLayout());
+		block.add(new JLabel("Bots:"));
+		block.add(this.numBotsList);
+		super.add(block);
 		
-		super.add(topBlock);
-		super.add(middleBlock);
-		super.add(bottomBlock);
+		block = new JPanel(new FlowLayout());
+		block.add(new JLabel("Dimension:"));
+		block.add(this.dimensionsList);
+		super.add(block);
+		
+		block = new JPanel(new FlowLayout());
+		block.add(backButton);
+		block.add(createButton);
+		super.add(block);
+	}
+	
+	public void setBotsList()
+	{
+		if (this.numBots > 8 - this.numPlayers)
+			this.numBots = 8 - this.numPlayers;
+		
+		this.numBotsList.setModel(new DefaultComboBoxModel<Integer>(
+				Arrays.copyOfRange(BOTS, 0, BOTS.length - this.numPlayers + 1)
+			));
+		this.numBotsList.setSelectedIndex(this.numBots);
+	}
+	
+	public void setDimensionsList()
+	{
+		int minDimension;
+		
+		if (this.numPlayers + this.numBots >= 7)
+			minDimension = 20;
+		else if (this.numPlayers + this.numBots >= 4)
+			minDimension = 15;
+		else
+			minDimension = 10;
+		
+		if (this.dimension < minDimension)
+			this.dimension = minDimension;
+		
+		this.dimensionsList.setModel(new DefaultComboBoxModel<Integer>(
+				Arrays.copyOfRange(DIMENSIONS, 0, DIMENSIONS.length - (minDimension - 10) / 5)
+			));
+		this.dimensionsList.setSelectedIndex((40 - minDimension) / 5);
 	}
 	
 	@Override
 	public void actionPerformed(ActionEvent e)
 	{
-		Program.get().createGame(
-				Integer.parseInt(this.numPlayersField.getText()),
-				Integer.parseInt(this.widthField.getText()),
-				Integer.parseInt(this.heightField.getText())
-			);
-	}
-	
-	private class NumbersFilter extends DocumentFilter {
-	
-		private final int length; 
-		
-		public NumbersFilter(int length) {
-			this.length = length;
-		}
-		
-		@Override
-		public void replace(FilterBypass fb, int offset, int length, String text, AttributeSet attrs) throws BadLocationException
+		if (e.getActionCommand().equals(ACTION_CREATE))
 		{
-			Document doc = fb.getDocument();
-			if (doc.getLength() == this.length) return;
+			Program.get().createGame(this.numPlayers, this.numBots, this.dimension);
 			
-			if (text.length() > 2 - doc.getLength())
-				text = text.substring(0, this.length - doc.getLength());
-			
-			if (text.matches("\\d+"))
-				super.replace(fb, offset, length, text, attrs);
+			return;
 		}
-		
+		else if (e.getSource().equals(this.numPlayersList))
+		{
+			int value = (Integer) this.numPlayersList.getSelectedItem();
+			if (value == this.numPlayers) return;
+			
+			this.numPlayers = value;
+			setBotsList();
+			setDimensionsList();
+		}
+		else if (e.getSource().equals(this.numBotsList))
+		{
+			int value = (Integer) this.numBotsList.getSelectedItem();
+			if (value == this.numBots) return;
+			
+			this.numBots = value;
+			setDimensionsList();
+		}
+		else if (e.getSource().equals(this.dimensionsList))
+		{
+			this.dimension = (Integer) this.dimensionsList.getSelectedItem();
+		}
 	}
 
 }

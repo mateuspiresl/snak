@@ -6,15 +6,14 @@ import java.io.ObjectOutputStream;
 import java.net.Socket;
 
 import com.forbait.games.snake.Command;
-import com.forbait.games.snake.World;
+import com.forbait.games.snake.Command.Type;
 import com.forbait.games.snake.elements.Snake;
-import com.forbait.games.snake.exceptions.InvalidMovementException;
+import com.forbait.games.snake.elements.Snake.Movement;
 
 public class Client implements Runnable {
 
 	private Socket client;
 	private Snake snake;
-	
 	private ObjectOutputStream oos;
 	
 	public Client(Socket client) throws IOException
@@ -23,44 +22,45 @@ public class Client implements Runnable {
 		this.oos = new ObjectOutputStream(this.client.getOutputStream());
 	}
 	
-	public void setSnake(Snake snake) {
+	public void setSnake(Snake snake) throws IOException
+	{
 		this.snake = snake;
-	}
-	
-	public Snake getSnake() {
-		return this.snake;
-	}
-	
-	public void sendSnake(Snake snake) throws IOException {
 		this.oos.writeObject(snake);
 	}
+	
+	public void sendFrame(Command frame) throws IOException {
+		this.oos.writeObject(frame);
+	}
+	
+	/*public Snake getSnake() {
+		return this.snake;
+	}*/
 	
 	@Override
 	public void run()
 	{
-		if (this.snake == null)
-			throw new UnsetSnakeException();
-		
 		try {
-			ObjectInputStream ois = new ObjectInputStream(this.client.getInputStream());
-			sendSnake(this.snake);
-			
-			while (true) {
-				try {
-					Command cmd = (Command) ois.readObject();
-					
-					switch (cmd.type)
-					{
-					case MOVEMENT:
-//						try {
-//							World.get().move(this.snake, Snake.Movement.parse((Integer) cmd.data));
-//							Server.get().sendSnake(this.snake);
-//						} catch (InvalidMovementException ime) {
-//							oos.writeObject(new InvalidMovementException());
-//						}
+			if (this.snake == null)
+			{
+				System.out.println(client + " has not a snake!");
+				this.oos.writeObject(new Command(Command.Type.ERROR, "No snake."));
+			}
+			else
+			{
+				this.oos.writeObject(new Command(Type.START));
+				
+				ObjectInputStream ois = new ObjectInputStream(this.client.getInputStream());
+				
+				while (true) {
+					try {
+						Command cmd = (Command) ois.readObject();
+						
+						if (cmd.type.equals(Command.Type.MOVEMENT))
+							this.snake.setNextMovement(Movement.parse((Integer) cmd.data));
 					}
-				} catch (ClassNotFoundException e) {
-					e.printStackTrace();
+					catch (ClassNotFoundException e) {
+						e.printStackTrace();
+					}
 				}
 			}
 		} catch (IOException e) {

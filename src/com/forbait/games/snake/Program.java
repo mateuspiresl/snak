@@ -89,6 +89,8 @@ public class Program implements ActionListener { //ItemListener {
 	
 	public void createGame(int numPlayers, int numBots, int dimension)
 	{
+		Game game = new Game(numPlayers, new Dimension(dimension, dimension), numBots);
+		
 		if (numPlayers > 1) try
 		{
 			this.connectionListener.setClientsCounter(numPlayers, 1);
@@ -106,7 +108,7 @@ public class Program implements ActionListener { //ItemListener {
 				
 				@Override
 				public void run() {
-					server.waitClients();
+					server.waitClients(game);
 				}
 			}.setServer(server)).start();
 		}
@@ -118,7 +120,7 @@ public class Program implements ActionListener { //ItemListener {
 		else
 		{
 			System.out.println(numPlayers + " " + numBots + " " + dimension);
-			new Game(numPlayers, new Dimension(dimension, dimension), numBots);
+			game.start();
 			this.frame.setVisible(false);
 		}
 	}

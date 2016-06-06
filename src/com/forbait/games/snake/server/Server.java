@@ -3,26 +3,20 @@ package com.forbait.games.snake.server;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Random;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
 
-import com.forbait.games.snake.World;
-import com.forbait.games.snake.elements.SnakeColors;
+import com.forbait.games.snake.Command;
+import com.forbait.games.snake.Command.Type;
+import com.forbait.games.snake.GameSettings;
 import com.forbait.games.snake.elements.Snake;
 import com.forbait.games.snake.ui.ClientsConnectionListener;
-import com.forbait.games.util.Point;
 
-public class Server
-{
-	// private final int port;
+public class Server {
 	
 	private ServerSocket server;
 	private ExecutorService executor;
-	private List<Future<?>> tasks = new ArrayList<Future<?>>();
 	private List<Client> clients = new ArrayList<Client>();
 	
 	private int numClients;
@@ -38,53 +32,38 @@ public class Server
 		this.listener = listener;
 	}
 	
-	public void waitClients()
+	public void waitClients(GameSettings game)
 	{
-		while (clients.size() < numClients)
+		while (this.clients.size() < this.numClients) try
 		{
-			try {
-				this.clients.add(new Client(this.server.accept()));
-				this.listener.clientConnected();
-			} catch (IOException ioe) {
-				ioe.printStackTrace();
-			}
+			Client client = new Client(this.server.accept());
+			client.setSnake(game.createSnake(Snake.class));
+			
+			this.clients.add(client);
+			this.listener.clientConnected();
 		}
-	}
-	
-	/*public void start()
-	{
-		Random rnd = new Random();
-		RandomColor rc = new RandomColor();
+		catch (IOException ioe) {
+			ioe.printStackTrace();
+		}
 		
-		for (int i = 0; i < this.clients.size(); i++)
-		{
-			this.clients.get(i).setSnake(new Snake(
-					i,
-					rc.next(),
-					new Point(rnd.nextInt(World.get().getWidth()), rnd.nextInt(World.get().getHeight()))
-				));
-			
-			this.tasks.add(this.executor.submit(this.clients.get(i)));
-		}
+		// TODO Ask to start and hide window
+		
+		for (Client client : this.clients)
+			this.executor.submit(client);
+		
+		game.start();
 	}
 	
-	public void sendSnake(Snake snake)
+	public void sendFrame(Snake[] snakes)
 	{
-		Iterator<Client> iterator = this.clients.iterator();
-		for (int i = 0; iterator.hasNext(); i++)
-		{
-			Client client = iterator.next();
-			
-			try {
-				client.sendSnake(snake);
-			} catch (IOException ioe) {
-				this.tasks.get(i).cancel(true);
-				iterator.remove();
-			}
+		Command frame = new Command(Type.FRAME, snakes);
+		
+		for (Client client : this.clients) try {
+			client.sendFrame(frame);
+		}
+		catch (IOException e) {
+			e.printStackTrace();
 		}
 	}
-	
-	@SuppressWarnings("serial")
-	public static class UnsetServerException extends RuntimeException { }*/
 	
 }

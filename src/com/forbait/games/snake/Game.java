@@ -23,7 +23,7 @@ import com.forbait.games.snake.elements.SnakeColors;
 import com.forbait.games.util.Dimension;
 import com.forbait.games.util.Point;
 
-public class Game implements KeyListener, ActionListener, WindowListener {
+public class Game implements GameSettings, KeyListener, ActionListener, WindowListener {
 
 	private final int FPS = 1000 / 8;
 
@@ -31,16 +31,14 @@ public class Game implements KeyListener, ActionListener, WindowListener {
 	private Snake localPlayer;
 	private World world;
 	private Timer loop;
-	private int numPlayers;
 	
 	// private int numEatables;
 	private List<Bot> bots = new ArrayList<Bot>();
 	
 	public Game(int numPlayers, Dimension tiles, int numBots)
 	{
-		this(numPlayers, tiles);
+		this(tiles);
 		
-		System.out.println("Creating " + localPlayer);
 		this.localPlayer = createSnake(Snake.class);
 		this.world.add(this.localPlayer);
 		this.frame.addKeyListener(this);
@@ -52,34 +50,39 @@ public class Game implements KeyListener, ActionListener, WindowListener {
 			this.world.add(bot);
 			this.bots.add(bot);
 		}
-		
-		// Number of eggs is equal to the number of players
-		// Starts with an extra egg
-		int numEatables = numPlayers + 1;
-		for (int i = 0; i < numEatables; i++)
-			this.world.add(new Egg(this.world.findEmptyCell()));
 	}
 	
-	public Game(int numPlayers, Dimension tiles)
+	public Game(Dimension tiles)
 	{
 		this.frame = new JFrame("Snak - Game");
 		this.frame.setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
 		this.frame.setLayout(new BorderLayout());
 		
-		this.numPlayers = numPlayers;
 		this.world = new World(tiles);	
 		
 		this.frame.add(this.world);
 		this.frame.pack();
 		this.frame.setLocationRelativeTo(null);
 		this.frame.addWindowListener(this);
+	}
+	
+	@Override
+	public void start()
+	{
+		// Number of eggs is equal to the number of players
+		// Starts with an extra egg
+		int numEatables = this.world.countSnakes() + 1;
+		for (int i = 0; i < numEatables; i++)
+			this.world.add(new Egg(this.world.findEmptyCell()));
+		
 		this.frame.setVisible(true);
 		
-		// TODO Use threads here!
+		// TODO Use thread here!
 		this.loop = new Timer(FPS, this);
 		this.loop.start();
 	}
 	
+	@Override
 	public <T extends Snake> T createSnake(Class<T> type)
 	{
 		int numSnakes = this.world.countSnakes();
@@ -104,6 +107,7 @@ public class Game implements KeyListener, ActionListener, WindowListener {
 					this.world
 				);
 			bot.eat();
+			System.out.println("Creating " + bot);
 			return type.cast(bot);
 		}
 		else
@@ -114,6 +118,7 @@ public class Game implements KeyListener, ActionListener, WindowListener {
 					right ? Movement.LEFT : Movement.RIGHT
 				);
 			snake.eat();
+			System.out.println("Creating " + snake);
 			return type.cast(snake);
 		}
 	}

@@ -88,38 +88,8 @@ public class World extends Canvas {
 			Movement movement = snake.getNextMovement();
 			Point headPosition = movement.from(snake.getHead());
 			Snake enemy = this.bodies.get(headPosition);
-
-			// Useless
-			/*synchronized (snake)
-			{
-				movement = snake.getNextMovement();
-				headPosition = movement.from(snake.getHead());
-				enemy = this.bodies.get(headPosition);
-				
-				// If collided with its own body
-				if (snake.equals(enemy))
-				{
-					// If collided with its nuke
-					// Never happens
-					/*if (snake.getBody().get(1).equals(headPosition))
-					{
-						if (snake.getMovement().equals(movement))
-							movement = movement.opposit();
-						else
-							movement = snake.getMovement();
-						
-						snake.setNextMovement(movement);
-						
-						headPosition = movement.from(snake.getHead());
-						enemy = this.bodies.get(headPosition);
-						
-						if (snake.equals(enemy))
-							enemy = null;
-					}
-					else enemy = null;
-				}
-			}*/
 			
+			// Do not collide itself
 			if (snake.equals(enemy))
 				enemy = null;
 			
@@ -171,6 +141,9 @@ public class World extends Canvas {
 			
 			else if (this.eatables.containsKey(enemy.getNextMovement().from(enemy.getHead())))
 				destroy.add(snake);
+			
+			else
+				futureHeads.put(enemy.getTail(), snake);
 		}
 		
 		// Destroys snakes and spread its pieces

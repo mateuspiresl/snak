@@ -1,7 +1,9 @@
 package com.forbait.games.snake;
 
+import java.awt.Canvas;
 import java.awt.Color;
 import java.awt.Graphics;
+import java.awt.Graphics2D;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -10,8 +12,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Random;
 import java.util.Set;
-
-import javax.swing.JPanel;
 
 import com.forbait.games.snake.elements.Eatable;
 import com.forbait.games.snake.elements.Snake;
@@ -23,7 +23,7 @@ import com.forbait.games.util.Dimension;
 import com.forbait.games.util.Point;
 
 @SuppressWarnings("serial")
-public class World extends JPanel {
+public class World extends Canvas {
 
 	public static final int MULTIPLIER = 14;
 	
@@ -38,6 +38,9 @@ public class World extends JPanel {
 	{
 		this.tiles = tiles;
 		this.screen = new Dimension(tiles.width * MULTIPLIER, tiles.height * MULTIPLIER);
+		
+		super.setBackground(new Color(225, 255, 225));
+		super.setSize(new java.awt.Dimension(this.screen.width, this.screen.height));
 	}
 	
 	@Debug
@@ -67,6 +70,10 @@ public class World extends JPanel {
 	
 	public boolean isIn(Point position) {
 		return this.tiles.contains(position);
+	}
+	
+	public boolean isOccupied(Point position) {
+		return this.bodies.containsKey(position) || this.eatables.containsKey(position);
 	}
 	
 	public Set<Snake> move()
@@ -258,63 +265,15 @@ public class World extends JPanel {
 	}
 	
 	@Override
-	public java.awt.Dimension getPreferredSize() {
-		return new java.awt.Dimension(this.screen.width, this.screen.height);
-	}
-	
-	@Override
-	protected void paintComponent(Graphics graphics)
+	public void paint(Graphics graphics)
 	{
-		super.paintComponent(graphics);
-		
-		graphics.setColor(new Color(225, 255, 225));
-		graphics.fillRect(0, 0, this.screen.width, this.screen.height);
-		
+		Graphics2D g = (Graphics2D) graphics;
+
 		for (Snake snake : this.snakes)
-			if (snake != null)
-		{
-			graphics.setColor(snake.getColor());
-			
-			for (Point point : snake.getBody())
-				graphics.fillRect(point.x * World.MULTIPLIER, point.y * World.MULTIPLIER, World.MULTIPLIER, World.MULTIPLIER);
-		}
+			snake.draw(g);
 		
 		for (Eatable eatable : this.eatables.values())
-			eatable.draw(graphics);
+			eatable.draw(g);
 	}
 	
 }
-
-/*public Set<Snake> makeFuture()
-{
-	Map<Point, Snake> heads = new HashMap<Point, Snake>();
-	Map<Point, Snake> bodies = new HashMap<Point, Snake>();
-	Set<Snake> collisions = new HashSet<Snake>();
-	
-	for (Snake snake : this.snakes)
-	{
-		Movement movement = this.futureMovements.get(snake);
-		Point head = movement.from(snake.getHead());
-		Snake enemy = heads.get(head);
-		
-		if (enemy == null)
-			heads.put(head, snake);
-		else
-		{
-			if (snake.getSize() <= enemy.getSize())
-				collisions.add(snake);
-			else
-				heads.put(head, snake);
-			
-			if (enemy.getSize() <= snake.getSize())
-				collisions.add(enemy);
-		}
-	}
-	
-	for (Point head : heads.keySet())
-	{
-		
-	}
-	
-	return collisions;
-}*/

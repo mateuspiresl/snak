@@ -8,6 +8,8 @@ import com.forbait.games.util.Point;
 
 public class SnakePiece extends Eatable {
 
+	private Color color = Color.decode("#51b46d");
+	
 	public SnakePiece(Point position) {
 		super(position);
 	}
@@ -17,7 +19,7 @@ public class SnakePiece extends Eatable {
 	{
 		Point normalized = super.normalizedPosition(super.getPosition(), World.MULTIPLIER);
 		
-		graphics.setColor(Color.GREEN);
+		graphics.setColor(this.color);
 		graphics.fillRect(normalized.x, normalized.y, World.MULTIPLIER, World.MULTIPLIER);
 	}
 

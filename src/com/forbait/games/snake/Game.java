@@ -44,7 +44,7 @@ public class Game implements GameSettings, KeyListener, ActionListener, WindowLi
 		this.frame.addKeyListener(this);
 		
 		// Adds bots
-		for (int i = 1; i < numBots; i++)
+		while (numBots-- > 0)
 		{
 			Bot bot = (Bot) createSnake(Bot.class);
 			this.world.add(bot);

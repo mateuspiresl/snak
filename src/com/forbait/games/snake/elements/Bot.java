@@ -9,7 +9,7 @@ import com.forbait.games.util.Point;
 
 public class Bot extends Snake {
 
-	private World world;
+	private transient World world;
 	
 	public Bot(Color color, Point initial, Movement movement, World world) {
 		super(color, initial, movement);
@@ -39,14 +39,12 @@ public class Bot extends Snake {
 			if (rnd.nextDouble() > chance)
 				return;
 		}
-		else System.out.print("OUT: ");
 		
 		movement = movement.other();
 		
 		if ( ! tiles.contains(movement.from(head)))
 			movement = movement.opposit();
 		
-		System.out.println(super.getMovement() + " -> " + movement);
 		super.setNextMovement(movement);
 	}
 	

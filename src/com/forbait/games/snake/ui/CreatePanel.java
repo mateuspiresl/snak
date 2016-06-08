@@ -1,11 +1,11 @@
 package com.forbait.games.snake.ui;
 
+import java.awt.BorderLayout;
 import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.Arrays;
 
-import javax.swing.BoxLayout;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
@@ -32,8 +32,7 @@ public class CreatePanel extends JPanel implements ActionListener {
 	private final Integer[] DIMENSIONS = new Integer[] { 40, 35, 30, 25, 20, 15, 10 };
 	
 	public CreatePanel() {
-		super();
-		super.setLayout(new BoxLayout(this, BoxLayout.PAGE_AXIS));
+		super(new BorderLayout());
 		
 		this.numPlayersList = new JComboBox<Integer>(PLAYERS);
 		this.numBotsList = new JComboBox<Integer>(BOTS);
@@ -45,7 +44,7 @@ public class CreatePanel extends JPanel implements ActionListener {
 
 		this.numBotsList.setSelectedIndex(0);
 		this.numPlayersList.setSelectedIndex(2);
-		this.dimensionsList.setSelectedIndex(5);
+		this.dimensionsList.setSelectedIndex(4);
 		
 		JButton createButton = new JButton("Criar");
 		createButton.setActionCommand(ACTION_CREATE);
@@ -57,27 +56,30 @@ public class CreatePanel extends JPanel implements ActionListener {
 		
 		// Insertion
 		
+		JPanel center = new JPanel();
 		JPanel block;
 		
-		block = new JPanel(new FlowLayout());
+		block = new JPanel();
 		block.add(new JLabel("Players:"));
 		block.add(this.numPlayersList);
-		super.add(block);
+		center.add(block);
 		
-		block = new JPanel(new FlowLayout());
+		block = new JPanel();
 		block.add(new JLabel("Bots:"));
 		block.add(this.numBotsList);
-		super.add(block);
+		center.add(block);
 		
-		block = new JPanel(new FlowLayout());
+		block = new JPanel();
 		block.add(new JLabel("Dimension:"));
 		block.add(this.dimensionsList);
-		super.add(block);
+		center.add(block);
+		
+		super.add(center, BorderLayout.CENTER);
 		
 		block = new JPanel(new FlowLayout());
 		block.add(backButton);
 		block.add(createButton);
-		super.add(block);
+		super.add(block, BorderLayout.SOUTH);
 	}
 	
 	public void setBotsList()

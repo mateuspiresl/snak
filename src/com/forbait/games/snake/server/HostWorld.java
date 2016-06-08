@@ -1,10 +1,11 @@
-package com.forbait.games.snake;
+package com.forbait.games.snake.server;
 
 import java.awt.Canvas;
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -13,7 +14,9 @@ import java.util.Map;
 import java.util.Random;
 import java.util.Set;
 
+import com.forbait.games.snake.Debug;
 import com.forbait.games.snake.elements.Eatable;
+import com.forbait.games.snake.elements.Element;
 import com.forbait.games.snake.elements.Snake;
 import com.forbait.games.snake.elements.Snake.Movement;
 import com.forbait.games.snake.elements.SnakePiece;
@@ -23,18 +26,18 @@ import com.forbait.games.util.Dimension;
 import com.forbait.games.util.Point;
 
 @SuppressWarnings("serial")
-public class World extends Canvas {
+public class HostWorld extends Canvas {
 
 	public static final int MULTIPLIER = 14;
 	
-	private List<Snake> snakes = new ArrayList<Snake>();
+	private volatile List<Snake> snakes = new ArrayList<Snake>();
 	private Map<Point, Snake> bodies = new HashMap<Point, Snake>();
 	private Map<Point, Eatable> eatables = new HashMap<Point, Eatable>();
 	
 	private Dimension tiles;
 	private Dimension screen;
 	
-	public World(Dimension tiles)
+	public HostWorld(Dimension tiles)
 	{
 		this.tiles = tiles;
 		this.screen = new Dimension(tiles.width * MULTIPLIER, tiles.height * MULTIPLIER);
@@ -247,6 +250,10 @@ public class World extends Canvas {
 		
 		for (Eatable eatable : this.eatables.values())
 			eatable.draw(g);
+	}
+
+	public Collection<? extends Element> getEatables() {
+		return this.eatables.values();
 	}
 	
 }

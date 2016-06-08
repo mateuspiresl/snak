@@ -1,7 +1,11 @@
 package com.forbait.games.util;
 
-public class Dimension extends Pair<Integer, Integer> {
+import java.io.Serializable;
 
+public class Dimension extends Pair<Integer, Integer> implements Serializable {
+
+	private static final long serialVersionUID = -422837110557869856L;
+	
 	public final int width, height;
 	
 	public Dimension(int width, int height) {

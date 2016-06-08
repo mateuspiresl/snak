@@ -3,10 +3,12 @@ package com.forbait.games.snake.ui;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
+import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
+import javax.swing.JPanel;
 
 public class WaitDialog implements ClientsConnectionListener, ActionListener {
 
@@ -15,14 +17,18 @@ public class WaitDialog implements ClientsConnectionListener, ActionListener {
 	
 	private JOptionPane pane = null;
 	private JButton startButton;
-	private JLabel label;
+	private JLabel hostLabel;
+	private JLabel playersLabel;
 	
 	private String host = "unknown";
 	private int numPlayers;
 	private int numPlayersConnected;
 	
+	private boolean toStart = false;
+	
 	public WaitDialog() {
-		this.label = new JLabel();
+		this.hostLabel = new JLabel();
+		this.playersLabel = new JLabel();
 	}
 	
 	public boolean getAnswer()
@@ -36,24 +42,33 @@ public class WaitDialog implements ClientsConnectionListener, ActionListener {
 		cancelButton.setActionCommand(BUTTON_CANCEL);
 		cancelButton.addActionListener(this);
 		
+		JPanel content = new JPanel();
+		content.setLayout(new BoxLayout(content, BoxLayout.PAGE_AXIS));
+		content.add(this.hostLabel);
+		content.add(this.playersLabel);
+		
 		updateText();
 		
-		return JOptionPane.showOptionDialog(
+		JOptionPane.showOptionDialog(
 				null, 
-				label, 
+				content, 
 				"Waiting for players", 
 				JOptionPane.YES_NO_OPTION, 
 				JOptionPane.QUESTION_MESSAGE, 
 				null, 
 				new Object[] { this.startButton, cancelButton }, 
 				this.startButton
-			) == 1;
+		);
+		
+		return this.toStart;
 	}
 
-	private void updateText() { 
-		this.label.setText("Your IP: " + this.host
-				+ "\nPlayers connected: " + this.numPlayersConnected
-				+ " of " + this.numPlayers
+	private void updateText()
+	{ 
+		this.hostLabel.setText("Your IP: " + this.host);
+		this.playersLabel.setText(
+				"Players connected: " + this.numPlayersConnected +
+				" of " + this.numPlayers
 			);
 	}
 	
@@ -90,11 +105,12 @@ public class WaitDialog implements ClientsConnectionListener, ActionListener {
 		switch (event.getActionCommand())
 		{
 		case BUTTON_START:
-			this.pane.setValue(true);
+			this.pane.setValue(1);
+			this.toStart = true;
 			break;
 			
 		case BUTTON_CANCEL:
-			this.pane.setValue(false);
+			this.pane.setValue(0);
 		}
 	}
 	

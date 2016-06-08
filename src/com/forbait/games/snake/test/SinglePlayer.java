@@ -2,7 +2,7 @@ package com.forbait.games.snake.test;
 
 import java.util.Scanner;
 
-import com.forbait.games.snake.Game;
+import com.forbait.games.snake.server.HostGame;
 import com.forbait.games.util.Dimension;
 
 public class SinglePlayer {
@@ -13,7 +13,7 @@ public class SinglePlayer {
 		int n = s.nextInt();
 		int b = s.nextInt();
 		int d = s.nextInt();
-		new Game(n, new Dimension(d, d), b);
+		new HostGame(new Dimension(d, d), b);
 	}
 	
 }

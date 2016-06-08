@@ -8,17 +8,18 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Random;
 
-import com.forbait.games.snake.World;
+import com.forbait.games.snake.server.HostWorld;
 import com.forbait.games.util.Point;
 
 public class Snake extends Element implements Serializable {
 
+	private static final long serialVersionUID = -180974531302600129L;
 	private static int idGenerator = 1; 
 	
 	private transient int id;
-	private Color headColor;
-	private Color bodyColor;
-	private LinkedList<Point> body = new LinkedList<Point>();
+	private final Color headColor;
+	private final Color bodyColor;
+	private volatile LinkedList<Point> body = new LinkedList<Point>();
 	private transient Movement movement;
 	private transient Movement nextMovement;
 	
@@ -38,6 +39,13 @@ public class Snake extends Element implements Serializable {
 	
 	public Snake(Color color) {
 		this(color, new Point(0, 0));
+	}
+	
+	public Snake(Snake that)
+	{
+		this.headColor = that.headColor;
+		this.bodyColor = that.bodyColor;
+		this.body = new LinkedList<Point>(that.body);
 	}
 	
 	@Override
@@ -178,8 +186,8 @@ public class Snake extends Element implements Serializable {
 
 	public void drawPiece(Graphics2D graphics, Point position)
 	{
-		position = Element.normalizedPosition(position, World.MULTIPLIER);
-		graphics.fillRect(position.x, position.y, World.MULTIPLIER, World.MULTIPLIER);
+		position = Element.normalizedPosition(position, HostWorld.MULTIPLIER);
+		graphics.fillRect(position.x, position.y, HostWorld.MULTIPLIER, HostWorld.MULTIPLIER);
 	}
 	
 	@Override

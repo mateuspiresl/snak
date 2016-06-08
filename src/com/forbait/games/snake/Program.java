@@ -18,12 +18,13 @@ import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
 
 import com.forbait.games.snake.Command.Type;
+import com.forbait.games.snake.client.Client;
+import com.forbait.games.snake.server.HostGame;
 import com.forbait.games.snake.server.Server;
-import com.forbait.games.snake.ui.ClientsConnectionListener;
+import com.forbait.games.snake.ui.ConnectPanel;
 import com.forbait.games.snake.ui.CreatePanel;
 import com.forbait.games.snake.ui.StartPanel;
 import com.forbait.games.snake.ui.WaitDialog;
-import com.forbait.games.snake.ui.WaitingClientsPanel;
 import com.forbait.games.util.Dimension;
 
 public class Program implements ActionListener { //ItemListener {
@@ -31,11 +32,10 @@ public class Program implements ActionListener { //ItemListener {
 	private static Program INSTANCE = null;
 	public final static String PANEL_START = "start";
 	public final static String PANEL_CREATE = "create";
-	public final static String PANEL_WAITING = "waiting";
+	private static final String PANEL_CONNECT = "connect";
 	
 	private JFrame frame;
 	private JPanel cards;
-	private ClientsConnectionListener connectionListener;
 	
 	private Program()
 	{
@@ -44,13 +44,10 @@ public class Program implements ActionListener { //ItemListener {
 		
 		Program.INSTANCE = this;
 		
-		WaitingClientsPanel clientsPanel = new WaitingClientsPanel();
-		this.connectionListener = clientsPanel;
-		
 		this.cards = new JPanel(new CardLayout());
 		this.cards.add(new StartPanel(), PANEL_START);
 		this.cards.add(new CreatePanel(), PANEL_CREATE);
-		this.cards.add(clientsPanel, PANEL_WAITING);
+		this.cards.add(new ConnectPanel(), PANEL_CONNECT);
 		
 		this.frame.add(this.cards, BorderLayout.CENTER);
 		this.frame.pack();
@@ -72,56 +69,6 @@ public class Program implements ActionListener { //ItemListener {
 	public void setWindowVisibility(boolean visible) {
 		this.frame.setVisible(visible);
 	}
-	
-	public int[] openCreateGameDiaglog()
-	{
-		final JOptionPane optionPane = new JOptionPane(
-				"The only way to close this dialog is by\n"
-				+ "pressing one of the following buttons.\n"
-				+ "Do you understand?",
-				JOptionPane.QUESTION_MESSAGE,
-				JOptionPane.YES_NO_OPTION);
-
-		final JDialog dialog = new JDialog(
-				frame, 
-				"Click a button",
-				true
-			);
-		dialog.setContentPane(optionPane);
-		dialog.setDefaultCloseOperation(
-			JDialog.DO_NOTHING_ON_CLOSE);
-		dialog.addWindowListener(new WindowAdapter() {
-			public void windowClosing(WindowEvent we) {
-				// return null
-			}
-		});
-		optionPane.addPropertyChangeListener(
-			new PropertyChangeListener() {
-				public void propertyChange(PropertyChangeEvent e) {
-					String prop = e.getPropertyName();
-		
-					if (dialog.isVisible() 
-							&& (e.getSource() == optionPane)
-							&& (prop.equals(JOptionPane.VALUE_PROPERTY))) {
-						//If you were going to check something
-						//before closing the window, you'd do
-						//it here.
-						dialog.setVisible(false);
-					}
-				}
-			});
-		dialog.pack();
-		dialog.setVisible(true);
-		
-		int value = ((Integer) optionPane.getValue()).intValue();
-		if (value == JOptionPane.YES_OPTION) {
-			// return data
-		} else if (value == JOptionPane.NO_OPTION) {
-			// return null
-		}
-		
-		return null;
-	}
 
 	@Override
 	public void actionPerformed(ActionEvent event)
@@ -129,10 +76,17 @@ public class Program implements ActionListener { //ItemListener {
 		switch (event.getActionCommand())
 		{
 		case StartPanel.BUTTON_NEW:
+			createGame(2, 0, 30);
 			changePanel(PANEL_CREATE);
 			break;
 			
 		case StartPanel.BUTTON_CONNECT:
+			try {
+				new Thread(new Client("127.0.0.1", 8001)).start();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+			changePanel(PANEL_CONNECT);
 			break;
 			
 		case StartPanel.BUTTON_EXIT:
@@ -147,27 +101,25 @@ public class Program implements ActionListener { //ItemListener {
 	
 	public void createGame(int numPlayers, int numBots, int dimension)
 	{
-		final Game game = new Game(numPlayers, new Dimension(dimension, dimension), numBots);
+		final Dimension tiles = new Dimension(dimension, dimension);
+		final HostGame game = new HostGame(tiles, numBots);
 		
 		if (numPlayers > 1) try
 		{
-			this.connectionListener.setClientsCounter(numPlayers, 1);
-			changePanel(PANEL_WAITING);
-			
 			final WaitDialog dialog = new WaitDialog();
 			final Server server = new Server(8001, numPlayers - 1);
 			
 			new Thread(new Runnable() {
 				@Override
 				public void run() {
-					server.waitClients(game, dialog);
+					server.waitClients(game, tiles, dialog);
 				}
 			}).start();
 			
 			if (dialog.getAnswer())
 			{
 				server.start();
-				game.start();
+				game.start(server);
 			}
 			else
 			{
@@ -183,9 +135,14 @@ public class Program implements ActionListener { //ItemListener {
 		else
 		{
 			System.out.println(numPlayers + " " + numBots + " " + dimension);
-			game.start();
+			game.start(null);
 			this.frame.setVisible(false);
 		}
+	}
+	
+	public void connectGame(String host)
+	{
+		
 	}
 	
 	public static void main(String[] args)

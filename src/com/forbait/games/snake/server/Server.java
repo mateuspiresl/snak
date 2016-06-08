@@ -9,15 +9,18 @@ import java.util.concurrent.Executors;
 
 import com.forbait.games.snake.Command;
 import com.forbait.games.snake.Command.Type;
-import com.forbait.games.snake.GameSettings;
+import com.forbait.games.snake.elements.Element;
 import com.forbait.games.snake.elements.Snake;
+import com.forbait.games.snake.server.HostClient.Sender;
 import com.forbait.games.snake.ui.ClientsConnectionListener;
+import com.forbait.games.util.Dimension;
 
 public class Server {
 	
 	private ServerSocket server;
 	private ExecutorService executor;
-	private List<Client> clients = new ArrayList<Client>();
+	private ExecutorService sender;
+	private List<HostClient> clients = new ArrayList<HostClient>();
 	
 	private int numClients;
 	
@@ -25,17 +28,18 @@ public class Server {
 	{
 		this.server = new ServerSocket(port);
 		this.executor = Executors.newFixedThreadPool(numClients);
+		this.sender = Executors.newFixedThreadPool(numClients);
 		this.numClients = numClients;
 	}
 	
-	public void waitClients(GameSettings game, ClientsConnectionListener listener)
+	public void waitClients(HostGame game, Dimension tiles, ClientsConnectionListener listener)
 	{
 		listener.setHostAddress(this.server.getInetAddress().getHostAddress());
-		listener.setClientsCounter(this.numClients, 1);
+		listener.setClientsCounter(this.numClients, 0);
 		
 		while (this.clients.size() < this.numClients) try
 		{
-			Client client = new Client(this.server.accept());
+			HostClient client = new HostClient(this.server.accept(), tiles);
 			client.setSnake(game.createSnake(Snake.class));
 			
 			this.clients.add(client);
@@ -49,27 +53,27 @@ public class Server {
 	
 	public void start()
 	{
-		for (Client client : this.clients)
+		for (HostClient client : this.clients)
 			this.executor.submit(client);
 	}
 	
-	public void sendFrame(Snake[] snakes) {
-		sendCommand(new Command(Type.FRAME, snakes));
+	public void sendFrame(Element[] elements) {
+		sendCommand(new Command(Type.FRAME, elements));
 	}
 	
 	public void sendCommand(Command cmd)
 	{
-		for (Client client : this.clients) try {
-			client.sendCommand(cmd);
-		}
-		catch (IOException e) {
-			e.printStackTrace();
+		for (HostClient client : this.clients)
+		{
+			Sender sender = client.getSender();
+			sender.setCommand(cmd);
+			this.sender.submit(sender);
 		}
 	}
 	
 	public void close()
 	{
-		for (Client client : this.clients)
+		for (HostClient client : this.clients)
 			client.close();
 		
 		try {

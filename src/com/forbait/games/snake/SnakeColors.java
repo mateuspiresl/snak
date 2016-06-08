@@ -1,4 +1,4 @@
-package com.forbait.games.snake.elements;
+package com.forbait.games.snake;
 
 import java.awt.Color;
 

@@ -1,4 +1,4 @@
-package com.forbait.games.snake;
+package com.forbait.games.snake.server;
 
 import java.awt.BorderLayout;
 import java.awt.event.ActionEvent;
@@ -15,33 +15,32 @@ import java.util.Set;
 import javax.swing.JFrame;
 import javax.swing.Timer;
 
+import com.forbait.games.snake.Program;
+import com.forbait.games.snake.SnakeColors;
 import com.forbait.games.snake.elements.Bot;
 import com.forbait.games.snake.elements.Egg;
+import com.forbait.games.snake.elements.Element;
 import com.forbait.games.snake.elements.Snake;
 import com.forbait.games.snake.elements.Snake.Movement;
-import com.forbait.games.snake.elements.SnakeColors;
 import com.forbait.games.util.Dimension;
 import com.forbait.games.util.Point;
 
-public class Game implements GameSettings, KeyListener, ActionListener, WindowListener {
+public class HostGame implements KeyListener, ActionListener, WindowListener {
 
 	private final int FPS = 1000 / 8;
 
+	private Server server;
 	private JFrame frame;
-	private Snake localPlayer;
-	private World world;
+	private HostWorld world;
 	private Timer loop;
 	
-	// private int numEatables;
 	private List<Bot> bots = new ArrayList<Bot>();
+	private HostPlayer player;
 	
-	public Game(int numPlayers, Dimension tiles, int numBots)
+	public HostGame(Dimension tiles, int numBots)
 	{
 		this(tiles);
-		
-		this.localPlayer = createSnake(Snake.class);
-		this.world.add(this.localPlayer);
-		this.frame.addKeyListener(this);
+		this.player = new HostPlayer(createSnake(Snake.class));
 		
 		// Adds bots
 		while (numBots-- > 0)
@@ -52,23 +51,25 @@ public class Game implements GameSettings, KeyListener, ActionListener, WindowLi
 		}
 	}
 	
-	public Game(Dimension tiles)
-	{
+	public HostGame(Dimension tiles)
+	{		
 		this.frame = new JFrame("Snak - Game");
 		this.frame.setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
 		this.frame.setLayout(new BorderLayout());
 		
-		this.world = new World(tiles);	
+		this.world = new HostWorld(tiles);
 		
 		this.frame.add(this.world);
-		this.frame.pack();
-		this.frame.setLocationRelativeTo(null);
 		this.frame.addWindowListener(this);
+		this.frame.addKeyListener(this);
+		this.frame.setLocationRelativeTo(null);
+		this.frame.pack();
 	}
 	
-	@Override
-	public void start()
+	public void start(Server server)
 	{
+		this.server = server;
+		
 		// Number of eggs is equal to the number of players
 		// Starts with an extra egg
 		int numEatables = this.world.countSnakes() + 1;
@@ -82,7 +83,6 @@ public class Game implements GameSettings, KeyListener, ActionListener, WindowLi
 		this.loop.start();
 	}
 	
-	@Override
 	public <T extends Snake> T createSnake(Class<T> type)
 	{
 		int numSnakes = this.world.countSnakes();
@@ -108,6 +108,7 @@ public class Game implements GameSettings, KeyListener, ActionListener, WindowLi
 				);
 			bot.eat();
 			System.out.println("Creating " + bot);
+			this.world.add(bot);
 			return type.cast(bot);
 		}
 		else
@@ -119,6 +120,7 @@ public class Game implements GameSettings, KeyListener, ActionListener, WindowLi
 				);
 			snake.eat();
 			System.out.println("Creating " + snake);
+			this.world.add(snake);
 			return type.cast(snake);
 		}
 	}
@@ -126,6 +128,7 @@ public class Game implements GameSettings, KeyListener, ActionListener, WindowLi
 	public void close()
 	{
 		this.loop.stop();
+		this.server.close();
 		this.frame.dispose();
 		Program.get().setWindowVisibility(true);
 	}
@@ -133,9 +136,12 @@ public class Game implements GameSettings, KeyListener, ActionListener, WindowLi
 	@Override
 	public void actionPerformed(ActionEvent event)
 	{
-		// Game oer if there is no snake alive
+		// Game over if there is no snake alive
 		if (this.world.countSnakes() == 0)
+		{
 			close();
+			return;
+		}
 		
 		// Keep the amount of eggs
 		int numEatables = this.world.countSnakes();
@@ -144,10 +150,20 @@ public class Game implements GameSettings, KeyListener, ActionListener, WindowLi
 		
 		// Makes moves and paint
 		Set<Snake> dead = this.world.move();
+		
+		if (this.server != null)
+		{
+			List<Element> elements = new ArrayList<Element>(this.world.getSnakes());
+			elements.addAll(this.world.getEatables());
+		
+			System.out.println(elements);
+			this.server.sendFrame(elements.toArray(new Element[0]));
+		}
+		
 		this.world.repaint();
 		
 		// Turn off keyboard listener if player's snake is dead
-		if (dead.contains(this.localPlayer))
+		if (dead.contains(this.player.getSnake()))
 			this.frame.removeKeyListener(this);
 		
 		// Remove dead bots and genereate their next movements
@@ -165,23 +181,9 @@ public class Game implements GameSettings, KeyListener, ActionListener, WindowLi
 	@Override
 	public void keyPressed(KeyEvent event)
 	{
-		switch (event.getKeyCode())
-		{
-		case KeyEvent.VK_UP:
-			this.localPlayer.setNextMovement(Movement.UP);
-			break;
-			
-		case KeyEvent.VK_DOWN:
-			this.localPlayer.setNextMovement(Movement.DOWN);
-			break;
-			
-		case KeyEvent.VK_LEFT:
-			this.localPlayer.setNextMovement(Movement.LEFT);
-			break;
-			
-		case KeyEvent.VK_RIGHT:			
-			this.localPlayer.setNextMovement(Movement.RIGHT);
-		}
+		System.out.println(this.player);
+		if (this.player != null)
+			this.player.keyPressed(event.getKeyCode());
 	}
 	
 	@Override

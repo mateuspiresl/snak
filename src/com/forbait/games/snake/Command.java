@@ -4,8 +4,7 @@ import java.io.Serializable;
 
 public class Command implements Serializable {
 
-	// Generated serial version
-	private static final long serialVersionUID = 3389421930549723376L;
+	private static final long serialVersionUID = -8100516669497331198L;
 	
 	public Type type;
 	public Serializable data;
@@ -19,8 +18,28 @@ public class Command implements Serializable {
 		this(type, null);
 	}
 	
-	public static enum Type {
-		MOVEMENT, SNAKE, FRAME, START, ERROR, END;
+	@Override
+	public String toString() {
+		return "Command { type: " + this.type + ", data: " + this.data + " }";
+	}
+	
+	public static enum Type implements Serializable {
+		
+		// Server-Client
+		DIMENSION,	// Game tiles dimension
+		SNAKE,		// Client's snake
+		// PLAYERS,	// Number of players connecteed
+		START,		// Game start signal
+		FRAME,		// Snakes bodies and colors
+		// SCORE,		// Players scores changing
+		ERROR,		// Error happened, connection close
+		END,		// Game end, connection close
+		
+		// Client-Server
+		MOVEMENT,	// Movement
+		
+		//Both
+		;
 	}
 	
 }

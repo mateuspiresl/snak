@@ -3,20 +3,20 @@ package com.forbait.games.snake.elements;
 import java.awt.Color;
 import java.util.Random;
 
-import com.forbait.games.snake.World;
+import com.forbait.games.snake.server.HostWorld;
 import com.forbait.games.util.Dimension;
 import com.forbait.games.util.Point;
 
 public class Bot extends Snake {
 
-	private transient World world;
+	private transient HostWorld world;
 	
-	public Bot(Color color, Point initial, Movement movement, World world) {
+	public Bot(Color color, Point initial, Movement movement, HostWorld world) {
 		super(color, initial, movement);
 		this.world = world;
 	}
 	
-	public Bot(Color color, Point initial, World world) {
+	public Bot(Color color, Point initial, HostWorld world) {
 		this(color, initial, Movement.random(), world);
 	}
 	

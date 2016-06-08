@@ -1,7 +1,11 @@
 package com.forbait.games.util;
 
-public class Point extends Pair<Integer, Integer> {
+import java.io.Serializable;
 
+public class Point extends Pair<Integer, Integer> implements Serializable {
+
+	private static final long serialVersionUID = -5804613612181902064L;
+	
 	public final int x, y;
 	
 	public Point(int x, int y) {

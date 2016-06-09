@@ -127,11 +127,14 @@ public class HostClient implements Runnable {
 
 		@Override
 		public void run() {
-			try {
-				this.oos.writeObject(this.cmd);
-				this.oos.reset();
-			} catch (IOException e) {
-				e.printStackTrace();
+			synchronized (this)
+			{
+				try {
+					this.oos.writeObject(this.cmd);
+					this.oos.reset();
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
 			}
 		}
 		

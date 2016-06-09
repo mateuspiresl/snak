@@ -70,7 +70,6 @@ public class Server {
 	
 	public void sendFrame(Element[] elements) {
 		sendCommand(new Command(Type.FRAME, elements));
-		checkSnakes();
 	}
 	
 	private void sendCommand(HostClient client, Command cmd)
@@ -86,10 +85,10 @@ public class Server {
 			sendCommand(client, cmd);
 	}
 	
-	public void checkSnakes()
+	public void notifyDeath(Snake snake)
 	{
 		for (HostClient client : this.clients)
-			if (client.getSnake().isDead())
+			if (client.getSnake().equals(snake))
 				sendCommand(client, Command.DEAD);
 	}
 	

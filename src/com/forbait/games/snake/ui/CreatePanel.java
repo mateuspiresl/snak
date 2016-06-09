@@ -42,8 +42,8 @@ public class CreatePanel extends JPanel implements ActionListener {
 		this.numBotsList.addActionListener(this);		
 		this.dimensionsList.addActionListener(this);
 
+		this.numPlayersList.setSelectedIndex(1);
 		this.numBotsList.setSelectedIndex(0);
-		this.numPlayersList.setSelectedIndex(2);
 		this.dimensionsList.setSelectedIndex(4);
 		
 		JButton createButton = new JButton("Criar");

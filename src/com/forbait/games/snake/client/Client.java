@@ -5,10 +5,11 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
 
+import javax.swing.JLabel;
 import javax.swing.JOptionPane;
+import javax.swing.JPanel;
 
 import com.forbait.games.snake.Command;
-import com.forbait.games.snake.Program;
 import com.forbait.games.snake.Command.Type;
 import com.forbait.games.snake.elements.Element;
 import com.forbait.games.snake.elements.Movement;
@@ -60,6 +61,7 @@ public class Client implements Runnable {
 			
 			while (true) try
 			{
+				boolean closed = false;
 				Command cmd = (Command) ois.readObject();
 				
 				switch (cmd.type)
@@ -83,18 +85,27 @@ public class Client implements Runnable {
 					break;
 					
 				case DEAD:
-					JOptionPane.showConfirmDialog(null, "Your snake is dead! :(", "", JOptionPane.OK_OPTION);
+					JPanel content = new JPanel();
+					content.add(new JLabel("Your snake is dead! :("));
+					content.add(new JLabel("Continue?"));
+
+					if (JOptionPane.showConfirmDialog(null, content, "", JOptionPane.OK_OPTION) != JOptionPane.OK_OPTION)
+						closed = true;
 					break;
 					
 				case ERROR:
 					JOptionPane.showConfirmDialog(null, "Server problem! :(", "", JOptionPane.OK_OPTION);
-					return;
 					
 				case END:
-					game.close();
-					return;
+					closed = true;
 					
 				default:
+				}
+				
+				if (closed) {
+					close();
+					game.close();
+					break;
 				}
 			}
 			catch (ClassNotFoundException e) {

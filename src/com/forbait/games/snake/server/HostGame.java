@@ -136,8 +136,8 @@ public class HostGame implements KeyListener, ActionListener, WindowListener {
 		if (this.world.countSnakes() == 0)
 		{
 			System.out.println("Game.actionP: Game closing due to lack of snakes alive");
-//			close();
-//			return;
+			close();
+			return;
 		}
 		
 		// Keep the amount of eggs
@@ -155,6 +155,9 @@ public class HostGame implements KeyListener, ActionListener, WindowListener {
 		
 			System.out.println("HostG.actionP: Elements: " + elements);
 			this.server.sendFrame(elements.toArray(new Element[0]));
+			
+			for (Snake snake : dead)
+				this.server.notifyDeath(snake);
 		}
 		
 		this.world.repaint();

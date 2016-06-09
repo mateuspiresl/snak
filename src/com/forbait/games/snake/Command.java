@@ -6,6 +6,10 @@ public class Command implements Serializable {
 
 	private static final long serialVersionUID = -8100516669497331198L;
 	
+	public static Command START = new Command(Type.START);
+	public static Command DEAD = new Command(Type.DEAD);
+	public static Command END = new Command(Type.END);
+	
 	public Type type;
 	public Serializable data;
 	

@@ -29,6 +29,10 @@ public class HostClient implements Runnable {
 		return this.sender;
 	}
 	
+	public Snake getSnake() {
+		return this.snake;
+	}
+	
 	public void setSnake(Snake snake) throws IOException
 	{
 		this.snake = snake;
@@ -69,16 +73,25 @@ public class HostClient implements Runnable {
 						Command cmd = (Command) ois.readObject();
 						
 						if (cmd.type.equals(Command.Type.MOVEMENT))
-							this.snake.setNextMovement(Movement.parse((Integer) cmd.data));
-						
-						System.out.println("HostC.run: Received movement " + cmd.data);
+						{
+							System.out.println("HostC.run: Received movement " + cmd.data);
+							this.snake.setNextMovement((Movement) cmd.data);
+						}
 					}
 					catch (ClassNotFoundException e) {
+						e.printStackTrace();
+					}
+					catch (IOException ioe) {
+						throw ioe;
+					}
+					catch (Exception e) {
+						System.out.println("Erro!");
 						e.printStackTrace();
 					}
 				}
 			}
 		} catch (IOException e) {
+			System.out.println("HostC.run: Connection closed!");
 			e.printStackTrace();
 		} finally {
 			if (ois != null) try {

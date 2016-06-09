@@ -24,6 +24,7 @@ public class Snake extends Element implements Serializable {
 	private volatile LinkedList<Point> body = new LinkedList<Point>();
 	private transient Movement movement;
 	private transient Movement nextMovement;
+	private transient boolean dead = false;
 	
 	public Snake(Color color, Point initial, Movement movement)
 	{
@@ -117,6 +118,14 @@ public class Snake extends Element implements Serializable {
 	{
 		eat();
 		this.body.removeLast();
+	}
+	
+	public void die() {
+		this.dead = true;
+	}
+	
+	public boolean isDead() {
+		return this.dead;
 	}
 	
 	@Override

@@ -56,11 +56,7 @@ public class ConnectPanel extends JPanel implements ActionListener {
 	@Override
 	public void actionPerformed(ActionEvent e)
 	{
-		if (e.getActionCommand().equals(ACTION_CONNECT))
-		{
-			this.connectButton.setEnabled(false);
-			this.backButton.setEnabled(false);
-			
+		if (e.getActionCommand().equals(ACTION_CONNECT)) {
 			Program.get().connectGame(this.hostText.getText());
 		}
 	}

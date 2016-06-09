@@ -23,6 +23,7 @@ public class Server {
 	private List<HostClient> clients = new ArrayList<HostClient>();
 	
 	private int numClients;
+	private boolean closed = false;
 	
 	public Server(int port, int numClients) throws IOException
 	{
@@ -39,18 +40,24 @@ public class Server {
 		
 		while (this.clients.size() < this.numClients) try
 		{
-			System.out.println("Server.waitC: waiting...");
+			System.out.println("Server.waitC: Waiting...");
 			
 			HostClient client = new HostClient(this.server.accept(), tiles);
 			client.setSnake(game.createSnake(Snake.class));
 			
-			System.out.println("Server.waitC: new connection");
+			System.out.println("Server.waitC: New connection");
 			
 			this.clients.add(client);
 			listener.clientConnected();
 		}
 		catch (IOException ioe) {
-			System.out.println("Server.waitC: connection fail");
+			if (this.closed)
+			{
+				System.out.println("Server.waitC: Connection closed");
+				break;
+			}
+			else
+				System.out.println("Server.waitC: Connection fail");
 		}
 	}
 	
@@ -63,21 +70,34 @@ public class Server {
 	
 	public void sendFrame(Element[] elements) {
 		sendCommand(new Command(Type.FRAME, elements));
+		checkSnakes();
+	}
+	
+	private void sendCommand(HostClient client, Command cmd)
+	{
+		Sender sender = client.getSender();
+		sender.setCommand(cmd);
+		this.sender.submit(sender);
 	}
 	
 	public void sendCommand(Command cmd)
 	{
 		for (HostClient client : this.clients)
-		{
-			Sender sender = client.getSender();
-			sender.setCommand(cmd);
-			this.sender.submit(sender);
-		}
+			sendCommand(client, cmd);
+	}
+	
+	public void checkSnakes()
+	{
+		for (HostClient client : this.clients)
+			if (client.getSnake().isDead())
+				sendCommand(client, Command.DEAD);
 	}
 	
 	public void close()
 	{
 		System.out.println("Server.close");
+		this.closed = true;
+		
 		for (HostClient client : this.clients)
 			client.close();
 		

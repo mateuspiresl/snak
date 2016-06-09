@@ -5,7 +5,10 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
 
+import javax.swing.JOptionPane;
+
 import com.forbait.games.snake.Command;
+import com.forbait.games.snake.Program;
 import com.forbait.games.snake.Command.Type;
 import com.forbait.games.snake.elements.Element;
 import com.forbait.games.snake.elements.Movement;
@@ -24,8 +27,8 @@ public class Client implements Runnable {
 	}
 	
 	public void sendCommand(Command cmd) throws IOException {
+		System.out.println("Client.sendC: Sending " + cmd);
 		this.oos.writeObject(cmd);
-		System.out.println(cmd);
 	}
 	
 	public void sendMovement(Movement movement)
@@ -53,8 +56,6 @@ public class Client implements Runnable {
 		ObjectInputStream ois = null;
 		
 		try {
-//			this.oos.writeObject(new Command(Type.START));
-			
 			ois = new ObjectInputStream(this.server.getInputStream());
 			
 			while (true) try
@@ -81,17 +82,23 @@ public class Client implements Runnable {
 					this.game.step((Element[]) cmd.data);
 					break;
 					
+				case DEAD:
+					JOptionPane.showConfirmDialog(null, "Your snake is dead! :(", "", JOptionPane.OK_OPTION);
+					break;
+					
 				case ERROR:
-					// TODO
+					JOptionPane.showConfirmDialog(null, "Server problem! :(", "", JOptionPane.OK_OPTION);
 					return;
 					
 				case END:
+					game.close();
 					return;
 					
 				default:
 				}
 			}
 			catch (ClassNotFoundException e) {
+				System.out.println("Client.run: Connection closed!");
 				e.printStackTrace();
 			}
 		} catch (IOException e) {

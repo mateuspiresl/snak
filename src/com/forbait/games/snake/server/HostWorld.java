@@ -170,6 +170,7 @@ public class HostWorld extends Canvas {
 			// Destroys snakes and spread its pieces
 			for (Snake snake : destroy)
 			{
+				snake.die();
 				remove(snake);
 				System.out.println("World.move: (" + snake.getID() + ") destroy");
 				

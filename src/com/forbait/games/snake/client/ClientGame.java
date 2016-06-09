@@ -52,11 +52,13 @@ public class ClientGame implements KeyListener, WindowListener {
 	{
 		this.frame.dispose();
 		Program.get().setWindowVisibility(true);
+		this.frame.setVisible(false);
 	}
 	
 	@Override
 	public void keyPressed(KeyEvent event)
 	{
+		System.out.println("ClientG.keyPressed: " + event.getKeyCode());
 		if (this.player != null)
 			this.player.keyPressed(event.getKeyCode());
 	}

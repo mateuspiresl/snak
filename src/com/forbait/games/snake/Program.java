@@ -5,6 +5,7 @@ import java.awt.CardLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.IOException;
+import java.net.BindException;
 import java.net.UnknownHostException;
 
 import javax.swing.JFrame;
@@ -125,8 +126,14 @@ public class Program implements ActionListener { //ItemListener {
 				server.close();
 			}
 		}
-		catch (IOException e) {
-			e.printStackTrace();
+		catch (BindException be) {
+			JOptionPane.showConfirmDialog(this.frame,
+					"Port 8000 in use by another application.",
+					"Error", JOptionPane.DEFAULT_OPTION
+				);
+		}
+		catch (IOException ioe) {
+			ioe.printStackTrace();
 			
 			// TODO
 		}
@@ -146,12 +153,12 @@ public class Program implements ActionListener { //ItemListener {
 			new Thread(new Client(host, 8000)).start();
 		}
 		catch (UnknownHostException uhe) {
-			JOptionPane.showConfirmDialog(null, "Error",
-					"Host " + host + " was not found!", JOptionPane.OK_OPTION);
+			JOptionPane.showConfirmDialog(this.frame,
+					"Host " + host + " was not found!", "Error", JOptionPane.DEFAULT_OPTION);
 		}
 		catch (IOException ioe) {
-			JOptionPane.showConfirmDialog(null, "Error",
-					"Could not connect. Check your internet connection.", JOptionPane.OK_OPTION);
+			JOptionPane.showConfirmDialog(this.frame,
+					"Could not connect. Check your internet connection.", "Error", JOptionPane.DEFAULT_OPTION);
 		}
 	}
 	

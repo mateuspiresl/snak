@@ -5,14 +5,13 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
 
-import javax.swing.JLabel;
 import javax.swing.JOptionPane;
-import javax.swing.JPanel;
 
 import com.forbait.games.snake.Command;
 import com.forbait.games.snake.Command.Type;
 import com.forbait.games.snake.elements.Element;
 import com.forbait.games.snake.elements.Movement;
+import com.forbait.games.snake.ui.MessagePanel;
 import com.forbait.games.util.Dimension;
 
 public class Client implements Runnable {
@@ -64,14 +63,17 @@ public class Client implements Runnable {
 				boolean closed = false;
 				Command cmd = (Command) ois.readObject();
 				
+				System.out.println("Client.run: Command recevied: " + cmd.type);
+				
 				switch (cmd.type)
 				{
 				case DIMENSION:
-					this.game = new ClientGame((Dimension) cmd.data);
-					this.game.setPlayer(new ClientPlayer(this));
+					System.out.println("Client.run: Creating game");
+					this.game = new ClientGame((Dimension) cmd.data, this);
 					break;
 				
 				case SNAKE:
+					System.out.println("Client.run: Showing local snake");
 					this.game.start();
 					this.game.step(new Element[] { (Element) cmd.data });
 					break;
@@ -81,28 +83,38 @@ public class Client implements Runnable {
 					break;
 					
 				case FRAME:
+					System.out.println("Client.run: New frame");
 					this.game.step((Element[]) cmd.data);
 					break;
 					
 				case DEAD:
-					JPanel content = new JPanel();
-					content.add(new JLabel("Your snake is dead! :("));
-					content.add(new JLabel("Continue?"));
-
-					if (JOptionPane.showConfirmDialog(null, content, "", JOptionPane.OK_OPTION) != JOptionPane.OK_OPTION)
-						closed = true;
+					System.out.println("Client.run: Local snake is dead");
+					closed = JOptionPane.showConfirmDialog(null,
+							new MessagePanel().add("Your snake is dead! :(").add("Continue?"),
+							"Dead", JOptionPane.YES_NO_OPTION
+						) != JOptionPane.YES_OPTION;
 					break;
 					
 				case ERROR:
-					JOptionPane.showConfirmDialog(null, "Server problem! :(", "", JOptionPane.OK_OPTION);
+					System.out.println("Client.run: Server problem");
+					
+					Object message = "Server problem! :(";
+					
+					if (cmd.data != null && cmd.data instanceof String)
+						message = new MessagePanel().add((String) message).add((String) cmd.data);
+										
+					JOptionPane.showConfirmDialog(null, message, "Error", JOptionPane.DEFAULT_OPTION);
 					
 				case END:
+					System.out.println("Client.run: Game ended");
+					JOptionPane.showConfirmDialog(null, "Game over!", "Snak", JOptionPane.DEFAULT_OPTION);
 					closed = true;
 					
 				default:
 				}
 				
 				if (closed) {
+					System.out.println("Client.run: Closing client and game");
 					close();
 					game.close();
 					break;

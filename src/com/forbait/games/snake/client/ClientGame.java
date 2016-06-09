@@ -10,16 +10,19 @@ import javax.swing.JFrame;
 
 import com.forbait.games.snake.Program;
 import com.forbait.games.snake.elements.Element;
+import com.forbait.games.snake.elements.Movement;
 import com.forbait.games.util.Dimension;
 
 public class ClientGame implements KeyListener, WindowListener {
 
 	private JFrame frame;
 	private ClientWorld world;
-	private ClientPlayer player;
+	private Client client;
 	
-	public ClientGame(Dimension tiles)
-	{		
+	public ClientGame(Dimension tiles, Client client)
+	{
+		this.client = client;
+		
 		this.frame = new JFrame("Snak - Game");
 		this.frame.setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
 		this.frame.setLayout(new BorderLayout());
@@ -31,10 +34,6 @@ public class ClientGame implements KeyListener, WindowListener {
 		this.frame.addKeyListener(this);
 		this.frame.setLocationRelativeTo(null);
 		this.frame.pack();
-	}
-	
-	public void setPlayer(ClientPlayer player) {
-		this.player = player;
 	}
 	
 	public void start() {
@@ -50,6 +49,7 @@ public class ClientGame implements KeyListener, WindowListener {
 	
 	public void close()
 	{
+		this.client.close();
 		this.frame.dispose();
 		Program.get().setWindowVisibility(true);
 		this.frame.setVisible(false);
@@ -59,8 +59,28 @@ public class ClientGame implements KeyListener, WindowListener {
 	public void keyPressed(KeyEvent event)
 	{
 		System.out.println("ClientG.keyPressed: " + event.getKeyCode());
-		if (this.player != null)
-			this.player.keyPressed(event.getKeyCode());
+		
+		switch (event.getKeyCode())
+		{
+		case KeyEvent.VK_UP:
+			System.out.println("ClientG.keyPressed: Movement: " + Movement.UP);
+			this.client.sendMovement(Movement.UP);
+			break;
+			
+		case KeyEvent.VK_DOWN:
+			System.out.println("ClientG.keyPressed: Movement: " + Movement.DOWN);
+			this.client.sendMovement(Movement.DOWN);
+			break;
+			
+		case KeyEvent.VK_LEFT:
+			System.out.println("ClientG.keyPressed: Movement: " + Movement.LEFT);
+			this.client.sendMovement(Movement.LEFT);
+			break;
+			
+		case KeyEvent.VK_RIGHT:			
+			System.out.println("ClientG.keyPressed: Movement: " + Movement.RIGHT);
+			this.client.sendMovement(Movement.RIGHT);
+		}
 	}
 	
 	@Override

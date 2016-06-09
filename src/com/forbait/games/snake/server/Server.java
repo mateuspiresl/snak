@@ -1,6 +1,7 @@
 package com.forbait.games.snake.server;
 
 import java.io.IOException;
+import java.net.BindException;
 import java.net.ServerSocket;
 import java.util.ArrayList;
 import java.util.List;
@@ -25,7 +26,7 @@ public class Server {
 	private int numClients;
 	private boolean closed = false;
 	
-	public Server(int port, int numClients) throws IOException
+	public Server(int port, int numClients) throws BindException, IOException
 	{
 		this.server = new ServerSocket(port);
 		this.executor = Executors.newFixedThreadPool(numClients);
@@ -74,6 +75,8 @@ public class Server {
 	
 	private void sendCommand(HostClient client, Command cmd)
 	{
+		System.out.println("Server.sendC: Sending " + cmd + " to " + client);
+		
 		Sender sender = client.getSender();
 		sender.setCommand(cmd);
 		this.sender.submit(sender);
@@ -89,7 +92,10 @@ public class Server {
 	{
 		for (HostClient client : this.clients)
 			if (client.getSnake().equals(snake))
-				sendCommand(client, Command.DEAD);
+		{
+			System.out.println("Server.notifyD: Notifying the client of " + client.getSnake());
+			sendCommand(client, Command.DEAD);				
+		}
 	}
 	
 	public void close()

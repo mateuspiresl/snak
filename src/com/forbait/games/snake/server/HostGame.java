@@ -1,7 +1,7 @@
 package com.forbait.games.snake.server;
 
 import java.awt.BorderLayout;
-import java.awt.Component;
+import java.awt.Canvas;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
@@ -14,6 +14,7 @@ import java.util.List;
 import java.util.Set;
 
 import javax.swing.JFrame;
+import javax.swing.JOptionPane;
 import javax.swing.Timer;
 
 import com.forbait.games.snake.Program;
@@ -23,6 +24,7 @@ import com.forbait.games.snake.elements.Egg;
 import com.forbait.games.snake.elements.Element;
 import com.forbait.games.snake.elements.Movement;
 import com.forbait.games.snake.elements.Snake;
+import com.forbait.games.snake.ui.MessagePanel;
 import com.forbait.games.util.Dimension;
 import com.forbait.games.util.Point;
 
@@ -36,21 +38,21 @@ public class HostGame implements KeyListener, ActionListener, WindowListener {
 	private Timer loop;
 	
 	private List<Bot> bots = new ArrayList<Bot>();
-	private HostPlayer player;
+	private Snake player;
 	
 	public HostGame(Dimension tiles, int numBots)
 	{
 		this.world = new HostWorld(tiles); 
 		setFrame(this.world);
 		
-		this.player = new HostPlayer(createSnake(Snake.class));
+		this.player = createSnake(Snake.class);
 		
 		// Adds bots
 		while (numBots-- > 0)
 			this.bots.add(createSnake(Bot.class));
 	}
 	
-	private void setFrame(Component view)
+	private void setFrame(Canvas view)
 	{
 		this.frame = new JFrame("Snak - Game");
 		this.frame.setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
@@ -94,31 +96,26 @@ public class HostGame implements KeyListener, ActionListener, WindowListener {
 		int y = (1 + numSnakes / 4) * (height / 5) + (right ? 1 : 0);
 		if (numSnakes % 2 != 0) y = height - y;
 		
+		Snake snake;
+		
 		if (type.equals(Bot.class))
-		{
-			Bot bot = new Bot(
+			snake = new Bot(
 					SnakeColors.getColor(numSnakes),
 					new Point(x, y),
 					right ? Movement.LEFT : Movement.RIGHT,
 					this.world
 				);
-			bot.eat();
-			System.out.println("Creating " + bot);
-			this.world.add(bot);
-			return type.cast(bot);
-		}
 		else
-		{
-			Snake snake = new Snake(
+			snake = new Snake(
 					SnakeColors.getColor(numSnakes),
 					new Point(x, y),
 					right ? Movement.LEFT : Movement.RIGHT
 				);
-			snake.eat();
-			System.out.println("Creating " + snake);
-			this.world.add(snake);
-			return type.cast(snake);
-		}
+		
+		snake.eat();
+		System.out.println("Creating " + snake);
+		this.world.add(snake);
+		return type.cast(snake);
 	}
 	
 	public void close()
@@ -136,6 +133,7 @@ public class HostGame implements KeyListener, ActionListener, WindowListener {
 		if (this.world.countSnakes() == 0)
 		{
 			System.out.println("Game.actionP: Game closing due to lack of snakes alive");
+			JOptionPane.showConfirmDialog(null, "Game over!", "Snak", JOptionPane.DEFAULT_OPTION);
 			close();
 			return;
 		}
@@ -163,8 +161,24 @@ public class HostGame implements KeyListener, ActionListener, WindowListener {
 		this.world.repaint();
 		
 		// Turn off keyboard listener if player's snake is dead
-		if (dead.contains(this.player.getSnake()))
+		if (dead.contains(this.player))
+		{
 			this.frame.removeKeyListener(this);
+			
+			if (this.world.countSnakes() > 0)
+				new Thread(new Runnable() {
+					@Override
+					public void run()
+					{
+						JOptionPane.showConfirmDialog(null,
+								new MessagePanel()
+								.add("Your snake is dead! :(")
+								.add("But allow the players to finish! :)"),
+								"Dead", JOptionPane.DEFAULT_OPTION
+							);
+					}
+				}).start();
+		}
 		
 		// Remove dead bots and genereate their next movements
 		Iterator<Bot> botIt = this.bots.iterator();
@@ -181,9 +195,29 @@ public class HostGame implements KeyListener, ActionListener, WindowListener {
 	@Override
 	public void keyPressed(KeyEvent event)
 	{
-		System.out.println(this.player);
-		if (this.player != null)
-			this.player.keyPressed(event.getKeyCode());
+		System.out.println("HostG.keyPressed: Key " + event.getKeyCode());
+		
+		switch (event.getKeyCode())
+		{
+		case KeyEvent.VK_UP:
+			System.out.println("HostG.keyPressed: Movement: " + Movement.UP);
+			this.player.setNextMovement(Movement.UP);
+			break;
+			
+		case KeyEvent.VK_DOWN:
+			System.out.println("HostG.keyPressed: Movement: " + Movement.DOWN);
+			this.player.setNextMovement(Movement.DOWN);
+			break;
+			
+		case KeyEvent.VK_LEFT:
+			System.out.println("HostG.keyPressed: Movement: " + Movement.LEFT);
+			this.player.setNextMovement(Movement.LEFT);
+			break;
+			
+		case KeyEvent.VK_RIGHT:
+			System.out.println("HostG.keyPressed: Movement: " + Movement.RIGHT);
+			this.player.setNextMovement(Movement.RIGHT);
+		}
 	}
 	
 	@Override

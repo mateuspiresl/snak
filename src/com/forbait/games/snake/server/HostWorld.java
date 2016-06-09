@@ -14,11 +14,10 @@ import java.util.Map;
 import java.util.Random;
 import java.util.Set;
 
-import com.forbait.games.snake.Debug;
 import com.forbait.games.snake.elements.Eatable;
 import com.forbait.games.snake.elements.Element;
+import com.forbait.games.snake.elements.Movement;
 import com.forbait.games.snake.elements.Snake;
-import com.forbait.games.snake.elements.Snake.Movement;
 import com.forbait.games.snake.elements.SnakePiece;
 import com.forbait.games.snake.exceptions.FullWorldException;
 import com.forbait.games.snake.exceptions.OccupiedCellException;
@@ -46,7 +45,6 @@ public class HostWorld extends Canvas {
 		super.setSize(new java.awt.Dimension(this.screen.width, this.screen.height));
 	}
 	
-	@Debug
 	public int countOccupied() {
 		return this.bodies.size() + this.eatables.size();
 	}
@@ -86,103 +84,127 @@ public class HostWorld extends Canvas {
 		Map<Snake, Point> tailCollision = new HashMap<Snake, Point>();
 		Map<Point, Snake> futureHeads = new HashMap<Point, Snake>();
 		
-		for (Snake snake : this.snakes)
+		System.out.println("World.move: " + this.snakes.size() + " snakes to process");
+		
+		Snake.movementLocker.lock();
 		{
-			Movement movement = snake.getNextMovement();
-			Point headPosition = movement.from(snake.getHead());
-			Snake enemy = this.bodies.get(headPosition);
-			
-			// Do not collide itself
-			if (snake.equals(enemy))
-				enemy = null;
-			
-			// Head goes out of the field
-			if ( ! isIn(headPosition))
-				cut.add(snake);
-			
-			else if (enemy != null)
+			for (Snake snake : this.snakes)
 			{
-				// Possible collision with enemy body if it is not eating
-				if (enemy.getTail().equals(headPosition))
-					tailCollision.put(snake, headPosition);
+				System.out.println("World.move: (" + snake.getID() + ") Processing " + snake);
 				
-				// Collides with enemy body
-				else
+				Movement movement = snake.getNextMovement();
+				Point headPosition = movement.from(snake.getHead());
+				Snake enemy = this.bodies.get(headPosition);
+				
+				// Do not collide itself
+				if (snake.equals(enemy))
+					enemy = null;
+				
+				// Cut if head goes out of the field
+				if ( ! isIn(headPosition))
+				{
+					cut.add(snake);
+					System.out.println("World.move: (" + snake.getID() + ") head out of the field");
+				}
+				
+				else if (enemy != null)
+				{
+					// Possible collision with enemy body if it is not eating
+					if (enemy.getTail().equals(headPosition))
+						tailCollision.put(snake, headPosition);
+					
+					// Collides with enemy body
+					else {
+						destroy.add(snake);
+						System.out.println("World.move: (" + snake.getID() + ") body collision with " + enemy.getID());
+					}
+				}
+				
+				// Does not collide with any head
+				else if ( ! futureHeads.containsKey(headPosition))
+					futureHeads.put(headPosition, snake);
+				
+				// Does
+				else {
+					enemy = futureHeads.get(headPosition);
 					destroy.add(snake);
+					destroy.add(enemy);
+					System.out.println("World.move: (" + snake.getID() + ") head collision with " + enemy);
+				}
 			}
 			
-			// Does not collide with any head
-			else if ( ! futureHeads.containsKey(headPosition))
-				futureHeads.put(headPosition, snake);
-			
-			// Does
-			else {
-				destroy.add(snake);
-				destroy.add(futureHeads.get(headPosition));
-			} 
-		}
-		
-		// Cuts snakes if its size is less than the minimum
-		for (Snake snake : cut)
-		{
-			Point head = snake.getBody().remove(0);
-			
-			if (snake.getSize() < 2)
-				destroy.add(snake);
-			else
-				futureHeads.put(head, snake);
-		}
-		
-		// Adds snakes to destroy set if it collided with a tail of
-		// an enemy that is eating
-		for (Snake snake : tailCollision.keySet())
-		{
-			Snake enemy = this.bodies.get(tailCollision.get(snake));
-			
-			if (destroy.contains(enemy))
-				futureHeads.put(enemy.getTail(), snake);
-			
-			else if (this.eatables.containsKey(enemy.getNextMovement().from(enemy.getHead())))
-				destroy.add(snake);
-			
-			else
-				futureHeads.put(enemy.getTail(), snake);
-		}
-		
-		// Destroys snakes and spread its pieces
-		for (Snake snake : destroy)
-		{
-			remove(snake);
-			
-			// 20 to 80% of the body
-			int numPieces = (int) (snake.getSize() * (0.2 + new Random().nextDouble() * 0.6));
-			
-			List<Point> body = snake.getBody();
-			Collections.shuffle(body, new Random(System.nanoTime()));
-			
-			for (int i = 0; i < numPieces; i++)
-				add(new SnakePiece(body.get(i)));
-		}
-		
-		// Makes snakes move or eat
-		for (Point head : futureHeads.keySet())
-		{
-			Snake snake = futureHeads.get(head);
-			if (destroy.contains(snake)) continue;
-			
-			if (this.eatables.containsKey(head))
+			// Cuts snakes if its size is less than the minimum
+			for (Snake snake : cut)
 			{
-				this.eatables.remove(head);
-				this.bodies.put(head, snake);
-				snake.eat();
+				Point head = snake.getBody().remove(0);
+				this.bodies.remove(head);
+				
+				if (snake.getSize() < 2)
+				{
+					destroy.add(snake);
+					System.out.println("World.move: (" + snake.getID() + ") cut to out of minimum size, destroy");
+				}
+				else
+					futureHeads.put(head, snake);
 			}
-			else
+			
+			// Adds snakes to destroy set if it collided with a tail of
+			// an enemy that is eating
+			for (Snake snake : tailCollision.keySet())
 			{
-				this.bodies.remove(snake.getTail());
-				this.bodies.put(head, snake);
-				snake.move();
+				Snake enemy = this.bodies.get(tailCollision.get(snake));
+				
+				if (destroy.contains(enemy))
+					futureHeads.put(enemy.getTail(), snake);
+				
+				else if (this.eatables.containsKey(enemy.getNextMovement().from(enemy.getHead())))
+				{
+					destroy.add(snake);
+					System.out.println("World.move: (" + snake.getID() + ") tail collision with " + enemy.getID());
+				}
+				
+				else
+					futureHeads.put(enemy.getTail(), snake);
+			}
+			
+			// Destroys snakes and spread its pieces
+			for (Snake snake : destroy)
+			{
+				remove(snake);
+				System.out.println("World.move: (" + snake.getID() + ") destroy");
+				
+				// 20 to 80% of the body
+				int numPieces = (int) (snake.getSize() * (0.2 + new Random().nextDouble() * 0.6));
+				
+				List<Point> body = snake.getBody();
+				Collections.shuffle(body, new Random(System.nanoTime()));
+				
+				for (int i = 0; i < numPieces; i++)
+					add(new SnakePiece(body.get(i)));
+			}
+			
+			// Makes snakes move or eat
+			for (Point head : futureHeads.keySet())
+			{
+				Snake snake = futureHeads.get(head);
+				if (destroy.contains(snake)) continue;
+				
+				if (this.eatables.containsKey(head))
+				{
+					this.eatables.remove(head);
+					this.bodies.put(head, snake);
+					snake.eat();
+					System.out.println("World.move: (" + snake.getID() + ") eat");
+				}
+				else
+				{
+					this.bodies.remove(snake.getTail());
+					this.bodies.put(head, snake);
+					snake.move();
+				}
 			}
 		}
+		Snake.movementLocker.unlock();
 		
 		return destroy;
 	}
@@ -197,6 +219,8 @@ public class HostWorld extends Canvas {
 	{
 		remove(snake.getBody());
 		this.snakes.remove(snake);
+		
+		System.out.println("World.remove: (" + snake.getID() + ") " + snake);
 	}
 	
 	public void add(Snake snake)
@@ -205,6 +229,8 @@ public class HostWorld extends Canvas {
 		
 		for (Point point : snake.getBody())
 			this.bodies.put(point, snake);		
+		
+		System.out.println("World.add: (" + snake.getID() + ") " + snake);
 	}
 	
 	public Point findEmptyCell() throws FullWorldException
@@ -230,10 +256,11 @@ public class HostWorld extends Canvas {
 	
 	public void add(Eatable eatable)
 	{
-		if ( ! this.eatables.containsKey(eatable.getPosition()))
-			this.eatables.put(eatable.getPosition(), eatable);
-		else
+		if (this.eatables.containsKey(eatable.getPosition()) || this.bodies.containsKey(eatable.getPosition()))
 			throw new OccupiedCellException();
+		
+		this.eatables.put(eatable.getPosition(), eatable);
+		System.out.println("World.add: (eatable) " + eatable);
 	}
 	
 	public int countEatables() {

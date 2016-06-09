@@ -2,8 +2,8 @@ package com.forbait.games.snake.server;
 
 import java.awt.event.KeyEvent;
 
+import com.forbait.games.snake.elements.Movement;
 import com.forbait.games.snake.elements.Snake;
-import com.forbait.games.snake.elements.Snake.Movement;
 
 public class HostPlayer {
 	

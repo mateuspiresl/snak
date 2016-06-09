@@ -4,7 +4,6 @@ import java.awt.BorderLayout;
 import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.IOException;
 
 import javax.swing.JButton;
 import javax.swing.JLabel;
@@ -12,7 +11,6 @@ import javax.swing.JPanel;
 import javax.swing.JTextField;
 
 import com.forbait.games.snake.Program;
-import com.forbait.games.snake.client.Client;
 
 @SuppressWarnings("serial")
 public class ConnectPanel extends JPanel implements ActionListener {
@@ -63,13 +61,7 @@ public class ConnectPanel extends JPanel implements ActionListener {
 			this.connectButton.setEnabled(false);
 			this.backButton.setEnabled(false);
 			
-			try {
-				System.out.println(this.hostText.getText());
-				new Client(this.hostText.getText(), 8001).run();
-			}
-			catch (IOException e1) {
-				e1.printStackTrace();
-			}
+			Program.get().connectGame(this.hostText.getText());
 		}
 	}
 

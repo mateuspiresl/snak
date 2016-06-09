@@ -1,6 +1,7 @@
 package com.forbait.games.snake.server;
 
 import java.awt.BorderLayout;
+import java.awt.Component;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
@@ -20,8 +21,8 @@ import com.forbait.games.snake.SnakeColors;
 import com.forbait.games.snake.elements.Bot;
 import com.forbait.games.snake.elements.Egg;
 import com.forbait.games.snake.elements.Element;
+import com.forbait.games.snake.elements.Movement;
 import com.forbait.games.snake.elements.Snake;
-import com.forbait.games.snake.elements.Snake.Movement;
 import com.forbait.games.util.Dimension;
 import com.forbait.games.util.Point;
 
@@ -39,27 +40,22 @@ public class HostGame implements KeyListener, ActionListener, WindowListener {
 	
 	public HostGame(Dimension tiles, int numBots)
 	{
-		this(tiles);
+		this.world = new HostWorld(tiles); 
+		setFrame(this.world);
+		
 		this.player = new HostPlayer(createSnake(Snake.class));
 		
 		// Adds bots
 		while (numBots-- > 0)
-		{
-			Bot bot = (Bot) createSnake(Bot.class);
-			this.world.add(bot);
-			this.bots.add(bot);
-		}
+			this.bots.add(createSnake(Bot.class));
 	}
 	
-	public HostGame(Dimension tiles)
-	{		
+	private void setFrame(Component view)
+	{
 		this.frame = new JFrame("Snak - Game");
 		this.frame.setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
 		this.frame.setLayout(new BorderLayout());
-		
-		this.world = new HostWorld(tiles);
-		
-		this.frame.add(this.world);
+		this.frame.add(view);
 		this.frame.addWindowListener(this);
 		this.frame.addKeyListener(this);
 		this.frame.setLocationRelativeTo(null);
@@ -128,7 +124,7 @@ public class HostGame implements KeyListener, ActionListener, WindowListener {
 	public void close()
 	{
 		this.loop.stop();
-		this.server.close();
+		if (server != null) this.server.close();
 		this.frame.dispose();
 		Program.get().setWindowVisibility(true);
 	}
@@ -139,6 +135,7 @@ public class HostGame implements KeyListener, ActionListener, WindowListener {
 		// Game over if there is no snake alive
 		if (this.world.countSnakes() == 0)
 		{
+			System.out.println("Game.actionP: Game closing due to lack of snakes alive");
 			close();
 			return;
 		}

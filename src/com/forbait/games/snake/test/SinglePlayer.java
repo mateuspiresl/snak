@@ -10,10 +10,9 @@ public class SinglePlayer {
 	public static void main(String[] args)
 	{
 		Scanner s = new Scanner(System.in);
-		int n = s.nextInt();
 		int b = s.nextInt();
 		int d = s.nextInt();
-		new HostGame(new Dimension(d, d), b);
+		new HostGame(new Dimension(d, d), b).start(null);;
 	}
 	
 }

@@ -9,6 +9,8 @@ import com.forbait.games.util.Point;
 
 public class Bot extends Snake {
 
+	private static final long serialVersionUID = 4322313274335246208L;
+	
 	private transient HostWorld world;
 	
 	public Bot(Color color, Point initial, Movement movement, HostWorld world) {

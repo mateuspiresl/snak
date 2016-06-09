@@ -8,8 +8,8 @@ import java.net.Socket;
 import com.forbait.games.snake.Command;
 import com.forbait.games.snake.Command.Type;
 import com.forbait.games.snake.elements.Element;
+import com.forbait.games.snake.elements.Movement;
 import com.forbait.games.snake.elements.Snake;
-import com.forbait.games.snake.elements.Snake.Movement;
 import com.forbait.games.util.Dimension;
 
 public class HostClient implements Runnable {
@@ -37,6 +37,7 @@ public class HostClient implements Runnable {
 	
 	public void close()
 	{
+		System.out.println("HostC.close");
 		try {
 			this.sender.send(new Command(Command.Type.END));
 			this.sender.close();
@@ -54,7 +55,7 @@ public class HostClient implements Runnable {
 		try {
 			if (this.snake == null)
 			{
-				System.out.println(client + " has not a snake!");
+				System.out.println("HostC.run: has not a snake");
 				this.sender.send(new Command(Command.Type.ERROR, "No snake."));
 			}
 			else
@@ -69,13 +70,14 @@ public class HostClient implements Runnable {
 						
 						if (cmd.type.equals(Command.Type.MOVEMENT))
 							this.snake.setNextMovement(Movement.parse((Integer) cmd.data));
+						
+						System.out.println("HostC.run: Received movement " + cmd.data);
 					}
 					catch (ClassNotFoundException e) {
 						e.printStackTrace();
 					}
 				}
 			}
-//		} catch (SocketException e) {
 		} catch (IOException e) {
 			e.printStackTrace();
 		} finally {
@@ -113,23 +115,8 @@ public class HostClient implements Runnable {
 		@Override
 		public void run() {
 			try {
-				System.out.println("SENDING");
-				if (cmd.data instanceof Element[]) {
-					for (Object e : (Element[]) cmd.data)
-						if (e instanceof Snake)
-							System.out.println((Snake) e);
-					
-//					Element[] es = (Element[]) cmd.data;
-//					for (int i = 0; i < es.length; i++)
-//					{
-//						if (es[i] instanceof Snake)
-//							es[i] = new Snake((Snake) es[i]);
-//					}
-				} else {
-					System.out.println(cmd);
-				}
-				
 				this.oos.writeObject(this.cmd);
+				this.oos.reset();
 			} catch (IOException e) {
 				e.printStackTrace();
 			}

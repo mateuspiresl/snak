@@ -39,6 +39,7 @@ public class ClientGame implements KeyListener, WindowListener {
 	
 	public void start() {
 		this.frame.setVisible(true);
+		Program.get().setWindowVisibility(false);
 	}
 	
 	public void step(Element[] elements)

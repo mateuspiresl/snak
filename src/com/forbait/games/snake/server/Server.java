@@ -34,25 +34,29 @@ public class Server {
 	
 	public void waitClients(HostGame game, Dimension tiles, ClientsConnectionListener listener)
 	{
-		listener.setHostAddress(this.server.getInetAddress().getHostAddress());
+		listener.setHostAddress(this.server.getInetAddress().getHostName());
 		listener.setClientsCounter(this.numClients, 0);
 		
 		while (this.clients.size() < this.numClients) try
 		{
+			System.out.println("Server.waitC: waiting...");
+			
 			HostClient client = new HostClient(this.server.accept(), tiles);
 			client.setSnake(game.createSnake(Snake.class));
+			
+			System.out.println("Server.waitC: new connection");
 			
 			this.clients.add(client);
 			listener.clientConnected();
 		}
 		catch (IOException ioe) {
-			ioe.printStackTrace();
-			listener.clientConnected();
+			System.out.println("Server.waitC: connection fail");
 		}
 	}
 	
 	public void start()
 	{
+		System.out.println("Server.start");
 		for (HostClient client : this.clients)
 			this.executor.submit(client);
 	}
@@ -73,6 +77,7 @@ public class Server {
 	
 	public void close()
 	{
+		System.out.println("Server.close");
 		for (HostClient client : this.clients)
 			client.close();
 		

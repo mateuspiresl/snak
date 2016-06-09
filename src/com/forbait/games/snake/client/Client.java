@@ -8,8 +8,7 @@ import java.net.Socket;
 import com.forbait.games.snake.Command;
 import com.forbait.games.snake.Command.Type;
 import com.forbait.games.snake.elements.Element;
-import com.forbait.games.snake.elements.Snake;
-import com.forbait.games.snake.elements.Snake.Movement;
+import com.forbait.games.snake.elements.Movement;
 import com.forbait.games.util.Dimension;
 
 public class Client implements Runnable {
@@ -62,15 +61,6 @@ public class Client implements Runnable {
 			{
 				Command cmd = (Command) ois.readObject();
 				
-				System.out.println("RECEIVING");
-				if (cmd.data instanceof Element[]) {
-					for (Object e : (Element[]) cmd.data)
-						if (e instanceof Snake)
-							System.out.println((Snake) e);
-				} else {
-					System.out.println(cmd);
-				}
-				
 				switch (cmd.type)
 				{
 				case DIMENSION:
@@ -93,11 +83,10 @@ public class Client implements Runnable {
 					
 				case ERROR:
 					// TODO
-					break;
+					return;
 					
 				case END:
 					return;
-//					break;
 					
 				default:
 				}

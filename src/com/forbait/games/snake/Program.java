@@ -4,13 +4,9 @@ import java.awt.BorderLayout;
 import java.awt.CardLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
 import java.io.IOException;
+import java.net.UnknownHostException;
 
-import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
@@ -76,20 +72,22 @@ public class Program implements ActionListener { //ItemListener {
 		switch (event.getActionCommand())
 		{
 		case StartPanel.BUTTON_NEW:
-			createGame(2, 0, 30);
+//			createGame(2, 6, 40);
 			changePanel(PANEL_CREATE);
 			break;
 			
 		case StartPanel.BUTTON_CONNECT:
-			try {
-				new Thread(new Client("127.0.0.1", 8001)).start();
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
+//			try {
+//				new Thread(new Client("127.0.0.1", 8001)).start();
+//			} catch (IOException e) {
+//				e.printStackTrace();
+//			}
 			changePanel(PANEL_CONNECT);
 			break;
 			
 		case StartPanel.BUTTON_EXIT:
+			this.frame.dispose();
+			this.frame.setVisible(false);
 			break;
 			
 		case CreatePanel.ACTION_BACK:
@@ -107,7 +105,7 @@ public class Program implements ActionListener { //ItemListener {
 		if (numPlayers > 1) try
 		{
 			final WaitDialog dialog = new WaitDialog();
-			final Server server = new Server(8001, numPlayers - 1);
+			final Server server = new Server(8000, numPlayers - 1);
 			
 			new Thread(new Runnable() {
 				@Override
@@ -142,7 +140,19 @@ public class Program implements ActionListener { //ItemListener {
 	
 	public void connectGame(String host)
 	{
+		System.out.println("Program.connectG: host: " + host);
 		
+		try {
+			new Thread(new Client(host, 8000)).start();
+		}
+		catch (UnknownHostException uhe) {
+			JOptionPane.showConfirmDialog(null, "Error",
+					"Host " + host + " was not found!", JOptionPane.OK_OPTION);
+		}
+		catch (IOException ioe) {
+			JOptionPane.showConfirmDialog(null, "Error",
+					"Could not connect. Check your internet connection.", JOptionPane.OK_OPTION);
+		}
 	}
 	
 	public static void main(String[] args)

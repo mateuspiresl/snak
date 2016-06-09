@@ -32,6 +32,7 @@ public class Command implements Serializable {
 		START,		// Game start signal
 		FRAME,		// Snakes bodies and colors
 		// SCORE,		// Players scores changing
+		DEAD,		// Client's snake is dead
 		ERROR,		// Error happened, connection close
 		END,		// Game end, connection close
 		

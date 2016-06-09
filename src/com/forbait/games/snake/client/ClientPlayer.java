@@ -2,7 +2,7 @@ package com.forbait.games.snake.client;
 
 import java.awt.event.KeyEvent;
 
-import com.forbait.games.snake.elements.Snake.Movement;
+import com.forbait.games.snake.elements.Movement;
 
 public class ClientPlayer {
 

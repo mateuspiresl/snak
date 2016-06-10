@@ -2,8 +2,6 @@ package com.forbait.games.snake.server;
 
 import java.awt.BorderLayout;
 import java.awt.Canvas;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.event.WindowEvent;
@@ -12,9 +10,11 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 import javax.swing.JFrame;
-import javax.swing.Timer;
 
 import com.forbait.games.snake.Debug;
 import com.forbait.games.snake.Program;
@@ -29,17 +29,19 @@ import com.forbait.games.snake.ui.MessagePanel;
 import com.forbait.games.util.Dimension;
 import com.forbait.games.util.Point;
 
-public class HostGame implements KeyListener, ActionListener, WindowListener {
+public class HostGame implements KeyListener, Runnable, WindowListener {
 
 	private final int FPS = 1000 / 8;
 
 	private Server server;
 	private JFrame frame;
 	private HostWorld world;
-	private Timer loop;
+//	private Timer loop;
 	
 	private List<Bot> bots = new ArrayList<Bot>();
 	private Snake player;
+	
+	private ScheduledExecutorService executor = Executors.newScheduledThreadPool(1);
 	
 	public HostGame(Dimension tiles, int numBots)
 	{
@@ -76,10 +78,9 @@ public class HostGame implements KeyListener, ActionListener, WindowListener {
 			this.world.add(new Egg(this.world.findEmptyCell()));
 		
 		this.frame.setVisible(true);
-		
-		// TODO Use thread here!
-		this.loop = new Timer(FPS, this);
-		this.loop.start();
+		this.executor.scheduleAtFixedRate(this, FPS, FPS, TimeUnit.MILLISECONDS);
+//		this.loop = new Timer(FPS, this);
+//		this.loop.start();
 	}
 	
 	public <T extends Snake> T createSnake(Class<T> type)
@@ -121,14 +122,16 @@ public class HostGame implements KeyListener, ActionListener, WindowListener {
 	
 	public void close()
 	{
-		this.loop.stop();
+		Debug.log("HostG.close");
+		this.executor.shutdown();
+//		this.loop.stop();
 		if (server != null) this.server.close();
 		this.frame.dispose();
 		Program.get().setWindowVisibility(true);
 	}
 	
 	@Override
-	public void actionPerformed(ActionEvent event)
+	public void run()
 	{
 		// Game over if there is no snake alive
 		if (this.world.countSnakes() == 0)

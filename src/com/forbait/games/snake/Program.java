@@ -25,6 +25,10 @@ import com.forbait.games.snake.ui.StartPanel;
 import com.forbait.games.snake.ui.WaitDialog;
 import com.forbait.games.util.Dimension;
 
+/*
+ * Janela principal.
+ * Contém os métodos para criar e conectar a jogos.
+ */
 public class Program implements ActionListener {
 	
 	private static Program INSTANCE = null;
@@ -93,6 +97,8 @@ public class Program implements ActionListener {
 		}
 	}
 	
+	/*	Create a game.
+	 * 	Starts server if number of players is greater then one. */
 	public void createGame(int numPlayers, int numBots, int dimension)
 	{
 		final Dimension tiles = new Dimension(dimension, dimension);
@@ -133,7 +139,7 @@ public class Program implements ActionListener {
 			ioe.printStackTrace();
 			
 			JOptionPane.showConfirmDialog(this.frame,
-					"Port 8000 in use by another application.",
+					"Could not start a server.",
 					"Error", JOptionPane.DEFAULT_OPTION
 				);
 		}
@@ -145,6 +151,7 @@ public class Program implements ActionListener {
 		}
 	}
 	
+	/*	Connect to a game. */
 	public void connectGame(String host)
 	{
 		Debug.log("Program.connectG: host: " + host);

@@ -6,10 +6,9 @@ import java.awt.Graphics2D;
 import com.forbait.games.snake.server.HostWorld;
 import com.forbait.games.util.Point;
 
+@SuppressWarnings("serial")
 public class Egg extends Eatable {
 	
-	private static final long serialVersionUID = 7476254127913963306L;
-
 	public Egg(Point position) {
 		super(position);
 	}

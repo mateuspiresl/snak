@@ -12,9 +12,9 @@ import java.util.concurrent.locks.ReentrantLock;
 import com.forbait.games.snake.server.HostWorld;
 import com.forbait.games.util.Point;
 
+@SuppressWarnings("serial")
 public class Snake extends Element implements Serializable {
 
-	private static final long serialVersionUID = -180974531302600129L;
 	private static int idGenerator = 1;
 	public static Lock movementLocker = new ReentrantLock(); 
 	

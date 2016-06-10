@@ -6,10 +6,9 @@ import java.awt.Graphics2D;
 import com.forbait.games.snake.server.HostWorld;
 import com.forbait.games.util.Point;
 
+@SuppressWarnings("serial")
 public class SnakePiece extends Eatable {
 
-	private static final long serialVersionUID = 4335623246668764302L;
-	
 	private Color color = Color.decode("#51b46d");
 	
 	public SnakePiece(Point position) {

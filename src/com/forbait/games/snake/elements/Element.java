@@ -5,10 +5,9 @@ import java.io.Serializable;
 
 import com.forbait.games.util.Point;
 
+@SuppressWarnings("serial")
 public abstract class Element implements Serializable {
 	
-	private static final long serialVersionUID = 1828203355892301341L;
-
 	public static Point normalizedPosition(Point position, int multiplier) {
 		return new Point(position.x * multiplier, position.y * multiplier);
 	}

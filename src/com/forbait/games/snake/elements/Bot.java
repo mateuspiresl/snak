@@ -7,9 +7,8 @@ import com.forbait.games.snake.server.HostWorld;
 import com.forbait.games.util.Dimension;
 import com.forbait.games.util.Point;
 
+@SuppressWarnings("serial")
 public class Bot extends Snake {
-
-	private static final long serialVersionUID = 4322313274335246208L;
 	
 	private transient HostWorld world;
 	

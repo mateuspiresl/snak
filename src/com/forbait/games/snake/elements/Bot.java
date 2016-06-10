@@ -27,6 +27,9 @@ public class Bot extends Snake {
 		Dimension tiles = this.world.getTiles();
 		Movement movement = super.getMovement();
 		
+		Point eatable = findCloserEatable();
+		
+		
 		if (tiles.contains(movement.from(head)))
 		{
 			Dimension translatedTiles = new Dimension(tiles.width / 2, tiles.height / 2);
@@ -47,6 +50,41 @@ public class Bot extends Snake {
 			movement = movement.opposit();
 		
 		super.setNextMovement(movement);
+	}
+	
+	public Movement movementTo(Point position)
+	{
+		Movement movement = null;
+		Random rnd = new Random();
+		
+		int xDiff = super.getHead().x - position.x; 
+		if (xDiff != 0)
+			movement = xDiff > 0 ? Movement.LEFT : Movement.RIGHT;
+		
+		int yDiff = super.getHead().y - position.y;
+		if (yDiff != 0 && (movement == null || rnd.nextBoolean()))
+			movement = yDiff > 0 ? Movement.UP : Movement.DOWN;
+		
+		return movement;
+	}
+	
+	public Point findCloserEatable()
+	{
+		int distance = Integer.MAX_VALUE;
+		Point position = null;
+		
+		for (Eatable eatable : this.world.getEatables())
+		{
+			int eatableDistance = super.getHead().distanceBetween(eatable.getPosition());
+			
+			if (eatableDistance < distance)
+			{
+				distance = eatableDistance;
+				position = eatable.getPosition();
+			}
+		}
+		
+		return position;
 	}
 	
 	@Override

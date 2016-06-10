@@ -7,6 +7,7 @@ import java.net.Socket;
 
 import com.forbait.games.snake.Command;
 import com.forbait.games.snake.Command.Type;
+import com.forbait.games.snake.Debug;
 import com.forbait.games.snake.elements.Element;
 import com.forbait.games.snake.elements.Movement;
 import com.forbait.games.snake.ui.Dialog;
@@ -26,7 +27,7 @@ public class Client implements Runnable {
 	}
 	
 	public void sendCommand(Command cmd) throws IOException {
-		System.out.println("Client.sendC: Sending " + cmd);
+		Debug.log("Client.sendC: Sending " + cmd);
 		this.oos.writeObject(cmd);
 	}
 	
@@ -62,32 +63,32 @@ public class Client implements Runnable {
 				boolean closed = false;
 				Command cmd = (Command) ois.readObject();
 				
-				System.out.println("Client.run: Command recevied: " + cmd.type);
+				Debug.log("Client.run: Command recevied: " + cmd.type);
 				
 				switch (cmd.type)
 				{
 				case DIMENSION:
-					System.out.println("Client.run: Creating game");
+					Debug.log("Client.run: Creating game");
 					this.game = new ClientGame((Dimension) cmd.data, this);
 					break;
 				
 				case SNAKE:
-					System.out.println("Client.run: Showing local snake");
+					Debug.log("Client.run: Showing local snake");
 					this.game.start();
 					this.game.step(new Element[] { (Element) cmd.data });
 					break;
 					
 				case START:
-					System.out.println("Client.run: Starting game");
+					Debug.log("Client.run: Starting game");
 					break;
 					
 				case FRAME:
-					System.out.println("Client.run: New frame");
+					Debug.log("Client.run: New frame");
 					this.game.step((Element[]) cmd.data);
 					break;
 					
 				case DEAD:
-					System.out.println("Client.run: Local snake is dead");
+					Debug.log("Client.run: Local snake is dead");
 					Dialog.nonBlockingMessage("Dead", new MessagePanel()
 							.add("Your snake is dead! :(")
 							.add("Continue?")
@@ -95,7 +96,7 @@ public class Client implements Runnable {
 					break;
 					
 				case ERROR:
-					System.out.println("Client.run: Server problem");
+					Debug.log("Client.run: Server problem");
 					String message = "Server problem! :(";
 					
 					if (cmd.data != null && cmd.data instanceof String)
@@ -108,7 +109,7 @@ public class Client implements Runnable {
 					break;
 					
 				case END:
-					System.out.println("Client.run: Game ended");
+					Debug.log("Client.run: Game ended");
 					Dialog.message("Snak", "Game over!");
 					closed = true;
 					
@@ -116,14 +117,14 @@ public class Client implements Runnable {
 				}
 				
 				if (closed) {
-					System.out.println("Client.run: Closing client and game");
+					Debug.log("Client.run: Closing client and game");
 					close();
 					game.close();
 					break;
 				}
 			}
 			catch (ClassNotFoundException e) {
-				System.out.println("Client.run: Connection closed!");
+				Debug.log("Client.run: Connection closed!");
 				e.printStackTrace();
 			}
 		} catch (IOException e) {

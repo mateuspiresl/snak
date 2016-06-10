@@ -16,6 +16,7 @@ import java.util.Set;
 import javax.swing.JFrame;
 import javax.swing.Timer;
 
+import com.forbait.games.snake.Debug;
 import com.forbait.games.snake.Program;
 import com.forbait.games.snake.SnakeColors;
 import com.forbait.games.snake.elements.Bot;
@@ -113,7 +114,7 @@ public class HostGame implements KeyListener, ActionListener, WindowListener {
 				);
 		
 		snake.eat();
-		System.out.println("Creating " + snake);
+		Debug.log("Creating " + snake);
 		this.world.add(snake);
 		return type.cast(snake);
 	}
@@ -132,7 +133,7 @@ public class HostGame implements KeyListener, ActionListener, WindowListener {
 		// Game over if there is no snake alive
 		if (this.world.countSnakes() == 0)
 		{
-			System.out.println("Game.actionP: Game closing due to lack of snakes alive");
+			Debug.log("Game.actionP: Game closing due to lack of snakes alive");
 			Dialog.nonBlockingMessage("Snak", "Game over!");
 			close();
 			return;
@@ -151,7 +152,7 @@ public class HostGame implements KeyListener, ActionListener, WindowListener {
 			List<Element> elements = new ArrayList<Element>(this.world.getSnakes());
 			elements.addAll(this.world.getEatables());
 		
-			System.out.println("HostG.actionP: Elements: " + elements);
+			Debug.log("HostG.actionP: Elements: " + elements);
 			this.server.sendFrame(elements.toArray(new Element[0]));
 			
 			for (Snake snake : dead)
@@ -188,27 +189,27 @@ public class HostGame implements KeyListener, ActionListener, WindowListener {
 	@Override
 	public void keyPressed(KeyEvent event)
 	{
-		System.out.println("HostG.keyPressed: Key " + event.getKeyCode());
+		Debug.log("HostG.keyPressed: Key " + event.getKeyCode());
 		
 		switch (event.getKeyCode())
 		{
 		case KeyEvent.VK_UP:
-			System.out.println("HostG.keyPressed: Movement: " + Movement.UP);
+			Debug.log("HostG.keyPressed: Movement: " + Movement.UP);
 			this.player.setNextMovement(Movement.UP);
 			break;
 			
 		case KeyEvent.VK_DOWN:
-			System.out.println("HostG.keyPressed: Movement: " + Movement.DOWN);
+			Debug.log("HostG.keyPressed: Movement: " + Movement.DOWN);
 			this.player.setNextMovement(Movement.DOWN);
 			break;
 			
 		case KeyEvent.VK_LEFT:
-			System.out.println("HostG.keyPressed: Movement: " + Movement.LEFT);
+			Debug.log("HostG.keyPressed: Movement: " + Movement.LEFT);
 			this.player.setNextMovement(Movement.LEFT);
 			break;
 			
 		case KeyEvent.VK_RIGHT:
-			System.out.println("HostG.keyPressed: Movement: " + Movement.RIGHT);
+			Debug.log("HostG.keyPressed: Movement: " + Movement.RIGHT);
 			this.player.setNextMovement(Movement.RIGHT);
 		}
 	}

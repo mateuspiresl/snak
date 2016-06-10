@@ -8,6 +8,7 @@ import java.awt.event.WindowListener;
 
 import javax.swing.JFrame;
 
+import com.forbait.games.snake.Debug;
 import com.forbait.games.snake.Program;
 import com.forbait.games.snake.elements.Element;
 import com.forbait.games.snake.elements.Movement;
@@ -58,27 +59,27 @@ public class ClientGame implements KeyListener, WindowListener {
 	@Override
 	public void keyPressed(KeyEvent event)
 	{
-		System.out.println("ClientG.keyPressed: " + event.getKeyCode());
+		Debug.log("ClientG.keyPressed: " + event.getKeyCode());
 		
 		switch (event.getKeyCode())
 		{
 		case KeyEvent.VK_UP:
-			System.out.println("ClientG.keyPressed: Movement: " + Movement.UP);
+			Debug.log("ClientG.keyPressed: Movement: " + Movement.UP);
 			this.client.sendMovement(Movement.UP);
 			break;
 			
 		case KeyEvent.VK_DOWN:
-			System.out.println("ClientG.keyPressed: Movement: " + Movement.DOWN);
+			Debug.log("ClientG.keyPressed: Movement: " + Movement.DOWN);
 			this.client.sendMovement(Movement.DOWN);
 			break;
 			
 		case KeyEvent.VK_LEFT:
-			System.out.println("ClientG.keyPressed: Movement: " + Movement.LEFT);
+			Debug.log("ClientG.keyPressed: Movement: " + Movement.LEFT);
 			this.client.sendMovement(Movement.LEFT);
 			break;
 			
 		case KeyEvent.VK_RIGHT:			
-			System.out.println("ClientG.keyPressed: Movement: " + Movement.RIGHT);
+			Debug.log("ClientG.keyPressed: Movement: " + Movement.RIGHT);
 			this.client.sendMovement(Movement.RIGHT);
 		}
 	}

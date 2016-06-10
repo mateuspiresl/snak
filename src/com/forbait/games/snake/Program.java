@@ -112,13 +112,13 @@ public class Program implements ActionListener {
 			
 			if (dialog.getAnswer())
 			{
-				System.out.println("Program.createG: Starting multiplayer game");
+				Debug.log("Program.createG: Starting multiplayer game");
 				server.start();
 				game.start(server);
 			}
 			else
 			{
-				System.out.println("Program.createG: Multiplayer game creation canceled");
+				Debug.log("Program.createG: Multiplayer game creation canceled");
 				server.sendCommand(new Command(Type.END));
 				server.close();
 			}
@@ -139,7 +139,7 @@ public class Program implements ActionListener {
 		}
 		else
 		{
-			System.out.println("Program.createG: Starting single player game");
+			Debug.log("Program.createG: Starting single player game");
 			game.start(null);
 			this.frame.setVisible(false);
 		}
@@ -147,7 +147,7 @@ public class Program implements ActionListener {
 	
 	public void connectGame(String host)
 	{
-		System.out.println("Program.connectG: host: " + host);
+		Debug.log("Program.connectG: host: " + host);
 		
 		try {
 			new Thread(new Client(host, 8000)).start();

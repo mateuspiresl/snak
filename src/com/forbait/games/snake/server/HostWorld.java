@@ -14,6 +14,7 @@ import java.util.Map;
 import java.util.Random;
 import java.util.Set;
 
+import com.forbait.games.snake.Debug;
 import com.forbait.games.snake.elements.Eatable;
 import com.forbait.games.snake.elements.Element;
 import com.forbait.games.snake.elements.Movement;
@@ -84,13 +85,13 @@ public class HostWorld extends Canvas {
 		Map<Snake, Point> tailCollision = new HashMap<Snake, Point>();
 		Map<Point, Snake> futureHeads = new HashMap<Point, Snake>();
 		
-		System.out.println("World.move: " + this.snakes.size() + " snakes to process");
+		Debug.log("World.move: " + this.snakes.size() + " snakes to process");
 		
 		Snake.movementLocker.lock();
 		{
 			for (Snake snake : this.snakes)
 			{
-				System.out.println("World.move: (" + snake.getID() + ") Processing " + snake);
+				Debug.log("World.move: (" + snake.getID() + ") Processing " + snake);
 				
 				Movement movement = snake.getNextMovement();
 				Point headPosition = movement.from(snake.getHead());
@@ -104,7 +105,7 @@ public class HostWorld extends Canvas {
 				if ( ! isIn(headPosition))
 				{
 					cut.add(snake);
-					System.out.println("World.move: (" + snake.getID() + ") head out of the field");
+					Debug.log("World.move: (" + snake.getID() + ") head out of the field");
 				}
 				
 				else if (enemy != null)
@@ -116,7 +117,7 @@ public class HostWorld extends Canvas {
 					// Collides with enemy body
 					else {
 						destroy.add(snake);
-						System.out.println("World.move: (" + snake.getID() + ") body collision with " + enemy.getID());
+						Debug.log("World.move: (" + snake.getID() + ") body collision with " + enemy.getID());
 					}
 				}
 				
@@ -129,7 +130,7 @@ public class HostWorld extends Canvas {
 					enemy = futureHeads.get(headPosition);
 					destroy.add(snake);
 					destroy.add(enemy);
-					System.out.println("World.move: (" + snake.getID() + ") head collision with " + enemy);
+					Debug.log("World.move: (" + snake.getID() + ") head collision with " + enemy);
 				}
 			}
 			
@@ -142,7 +143,7 @@ public class HostWorld extends Canvas {
 				if (snake.getSize() < 2)
 				{
 					destroy.add(snake);
-					System.out.println("World.move: (" + snake.getID() + ") cut to out of minimum size, destroy");
+					Debug.log("World.move: (" + snake.getID() + ") cut to out of minimum size, destroy");
 				}
 				else
 					futureHeads.put(head, snake);
@@ -160,7 +161,7 @@ public class HostWorld extends Canvas {
 				else if (this.eatables.containsKey(enemy.getNextMovement().from(enemy.getHead())))
 				{
 					destroy.add(snake);
-					System.out.println("World.move: (" + snake.getID() + ") tail collision with " + enemy.getID());
+					Debug.log("World.move: (" + snake.getID() + ") tail collision with " + enemy.getID());
 				}
 				
 				else
@@ -172,7 +173,7 @@ public class HostWorld extends Canvas {
 			{
 				snake.die();
 				remove(snake);
-				System.out.println("World.move: (" + snake.getID() + ") destroy");
+				Debug.log("World.move: (" + snake.getID() + ") destroy");
 				
 				// 20 to 80% of the body
 				int numPieces = (int) (snake.getSize() * (0.2 + new Random().nextDouble() * 0.6));
@@ -195,7 +196,7 @@ public class HostWorld extends Canvas {
 					this.eatables.remove(head);
 					this.bodies.put(head, snake);
 					snake.eat();
-					System.out.println("World.move: (" + snake.getID() + ") eat");
+					Debug.log("World.move: (" + snake.getID() + ") eat");
 				}
 				else
 				{
@@ -221,7 +222,7 @@ public class HostWorld extends Canvas {
 		remove(snake.getBody());
 		this.snakes.remove(snake);
 		
-		System.out.println("World.remove: (" + snake.getID() + ") " + snake);
+		Debug.log("World.remove: (" + snake.getID() + ") " + snake);
 	}
 	
 	public void add(Snake snake)
@@ -231,7 +232,7 @@ public class HostWorld extends Canvas {
 		for (Point point : snake.getBody())
 			this.bodies.put(point, snake);		
 		
-		System.out.println("World.add: (" + snake.getID() + ") " + snake);
+		Debug.log("World.add: (" + snake.getID() + ") " + snake);
 	}
 	
 	public Point findEmptyCell() throws FullWorldException
@@ -261,7 +262,7 @@ public class HostWorld extends Canvas {
 			throw new OccupiedCellException();
 		
 		this.eatables.put(eatable.getPosition(), eatable);
-		System.out.println("World.add: (eatable) " + eatable);
+		Debug.log("World.add: (eatable) " + eatable);
 	}
 	
 	public int countEatables() {

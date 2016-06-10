@@ -5,6 +5,7 @@ import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 
+import com.forbait.games.snake.Debug;
 import com.forbait.games.snake.elements.Element;
 import com.forbait.games.util.Dimension;
 
@@ -24,7 +25,7 @@ public class ClientWorld extends Canvas {
 	
 	public void setElements(Element[] elements)
 	{
-		System.out.println("ClientW.setE: Updating elements to draw: " + elements);
+		Debug.log("ClientW.setE: Updating elements to draw: " + elements);
 		this.elements = elements;
 	}
 	
@@ -33,7 +34,7 @@ public class ClientWorld extends Canvas {
 	{
 		Graphics2D g = (Graphics2D) graphics;
 
-		System.out.println("ClientW.paint");
+		Debug.log("ClientW.paint");
 		
 		for (Element element : this.elements)
 			element.draw(g);

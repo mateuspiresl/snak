@@ -10,6 +10,7 @@ import java.util.concurrent.Executors;
 
 import com.forbait.games.snake.Command;
 import com.forbait.games.snake.Command.Type;
+import com.forbait.games.snake.Debug;
 import com.forbait.games.snake.elements.Element;
 import com.forbait.games.snake.elements.Snake;
 import com.forbait.games.snake.server.HostClient.Sender;
@@ -41,12 +42,12 @@ public class Server {
 		
 		while (this.clients.size() < this.numClients) try
 		{
-			System.out.println("Server.waitC: Waiting...");
+			Debug.log("Server.waitC: Waiting...");
 			
 			HostClient client = new HostClient(this.server.accept(), tiles);
 			client.setSnake(game.createSnake(Snake.class));
 			
-			System.out.println("Server.waitC: New connection");
+			Debug.log("Server.waitC: New connection");
 			
 			this.clients.add(client);
 			listener.clientConnected();
@@ -54,17 +55,17 @@ public class Server {
 		catch (IOException ioe) {
 			if (this.closed)
 			{
-				System.out.println("Server.waitC: Connection closed");
+				Debug.log("Server.waitC: Connection closed");
 				break;
 			}
 			else
-				System.out.println("Server.waitC: Connection fail");
+				Debug.log("Server.waitC: Connection fail");
 		}
 	}
 	
 	public void start()
 	{
-		System.out.println("Server.start");
+		Debug.log("Server.start");
 		for (HostClient client : this.clients)
 			this.executor.submit(client);
 	}
@@ -75,7 +76,7 @@ public class Server {
 	
 	private void sendCommand(HostClient client, Command cmd)
 	{
-		System.out.println("Server.sendC: Sending " + cmd + " to " + client);
+		Debug.log("Server.sendC: Sending " + cmd + " to " + client);
 		
 		Sender sender = client.getSender();
 		sender.setCommand(cmd);
@@ -93,14 +94,14 @@ public class Server {
 		for (HostClient client : this.clients)
 			if (client.getSnake().equals(snake))
 		{
-			System.out.println("Server.notifyD: Notifying the client of " + client.getSnake());
+			Debug.log("Server.notifyD: Notifying the client of " + client.getSnake());
 			sendCommand(client, Command.DEAD);				
 		}
 	}
 	
 	public void close()
 	{
-		System.out.println("Server.close");
+		Debug.log("Server.close");
 		this.closed = true;
 		
 		for (HostClient client : this.clients)

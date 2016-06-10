@@ -7,6 +7,7 @@ import java.net.Socket;
 
 import com.forbait.games.snake.Command;
 import com.forbait.games.snake.Command.Type;
+import com.forbait.games.snake.Debug;
 import com.forbait.games.snake.elements.Element;
 import com.forbait.games.snake.elements.Movement;
 import com.forbait.games.snake.elements.Snake;
@@ -41,7 +42,7 @@ public class HostClient implements Runnable {
 	
 	public void close()
 	{
-		System.out.println("HostC.close");
+		Debug.log("HostC.close");
 		try {
 			this.sender.send(new Command(Command.Type.END));
 			this.sender.close();
@@ -59,7 +60,7 @@ public class HostClient implements Runnable {
 		try {
 			if (this.snake == null)
 			{
-				System.out.println("HostC.run: has not a snake");
+				Debug.log("HostC.run: has not a snake");
 				this.sender.send(new Command(Command.Type.ERROR, "No snake."));
 			}
 			else
@@ -74,7 +75,7 @@ public class HostClient implements Runnable {
 						
 						if (cmd.type.equals(Command.Type.MOVEMENT))
 						{
-							System.out.println("HostC.run: Received movement " + cmd.data);
+							Debug.log("HostC.run: Received movement " + cmd.data);
 							this.snake.setNextMovement((Movement) cmd.data);
 						}
 					}
@@ -85,13 +86,13 @@ public class HostClient implements Runnable {
 						throw ioe;
 					}
 					catch (Exception e) {
-						System.out.println("Erro!");
+						Debug.log("Erro!");
 						e.printStackTrace();
 					}
 				}
 			}
 		} catch (IOException e) {
-			System.out.println("HostC.run: Connection closed!");
+			Debug.log("HostC.run: Connection closed!");
 			e.printStackTrace();
 		} finally {
 			if (ois != null) try {

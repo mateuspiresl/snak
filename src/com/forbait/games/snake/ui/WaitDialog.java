@@ -17,17 +17,14 @@ public class WaitDialog implements ClientsConnectionListener, ActionListener {
 	
 	private JOptionPane pane = null;
 	private JButton startButton;
-	private JLabel hostLabel;
 	private JLabel playersLabel;
-	
-	private String host = "unknown";
+
 	private int numPlayers;
 	private int numPlayersConnected;
 	
 	private boolean toStart = false;
 	
 	public WaitDialog() {
-		this.hostLabel = new JLabel();
 		this.playersLabel = new JLabel();
 	}
 	
@@ -44,7 +41,6 @@ public class WaitDialog implements ClientsConnectionListener, ActionListener {
 		
 		JPanel content = new JPanel();
 		content.setLayout(new BoxLayout(content, BoxLayout.PAGE_AXIS));
-		content.add(this.hostLabel);
 		content.add(this.playersLabel);
 		
 		updateText();
@@ -64,18 +60,11 @@ public class WaitDialog implements ClientsConnectionListener, ActionListener {
 	}
 
 	private void updateText()
-	{ 
-		this.hostLabel.setText("Your IP: " + this.host);
+	{
 		this.playersLabel.setText(
 				"Players connected: " + this.numPlayersConnected +
 				" of " + this.numPlayers
 			);
-	}
-	
-	@Override
-	public void setHostAddress(String address) {
-		this.host = address;
-		updateText();
 	}
 
 	@Override

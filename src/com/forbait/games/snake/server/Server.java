@@ -37,7 +37,6 @@ public class Server {
 	
 	public void waitClients(HostGame game, Dimension tiles, ClientsConnectionListener listener)
 	{
-		listener.setHostAddress(this.server.getInetAddress().getHostName());
 		listener.setClientsCounter(this.numClients, 0);
 		
 		while (this.clients.size() < this.numClients) try

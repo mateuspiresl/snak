@@ -20,11 +20,12 @@ import com.forbait.games.snake.server.HostGame;
 import com.forbait.games.snake.server.Server;
 import com.forbait.games.snake.ui.ConnectPanel;
 import com.forbait.games.snake.ui.CreatePanel;
+import com.forbait.games.snake.ui.Dialog;
 import com.forbait.games.snake.ui.StartPanel;
 import com.forbait.games.snake.ui.WaitDialog;
 import com.forbait.games.util.Dimension;
 
-public class Program implements ActionListener { //ItemListener {
+public class Program implements ActionListener {
 	
 	private static Program INSTANCE = null;
 	public final static String PANEL_START = "start";
@@ -73,16 +74,10 @@ public class Program implements ActionListener { //ItemListener {
 		switch (event.getActionCommand())
 		{
 		case StartPanel.BUTTON_NEW:
-//			createGame(2, 6, 40);
 			changePanel(PANEL_CREATE);
 			break;
 			
 		case StartPanel.BUTTON_CONNECT:
-//			try {
-//				new Thread(new Client("127.0.0.1", 8001)).start();
-//			} catch (IOException e) {
-//				e.printStackTrace();
-//			}
 			changePanel(PANEL_CONNECT);
 			break;
 			
@@ -117,11 +112,13 @@ public class Program implements ActionListener { //ItemListener {
 			
 			if (dialog.getAnswer())
 			{
+				System.out.println("Program.createG: Starting multiplayer game");
 				server.start();
 				game.start(server);
 			}
 			else
 			{
+				System.out.println("Program.createG: Multiplayer game creation canceled");
 				server.sendCommand(new Command(Type.END));
 				server.close();
 			}
@@ -135,11 +132,14 @@ public class Program implements ActionListener { //ItemListener {
 		catch (IOException ioe) {
 			ioe.printStackTrace();
 			
-			// TODO
+			JOptionPane.showConfirmDialog(this.frame,
+					"Port 8000 in use by another application.",
+					"Error", JOptionPane.DEFAULT_OPTION
+				);
 		}
 		else
 		{
-			System.out.println(numPlayers + " " + numBots + " " + dimension);
+			System.out.println("Program.createG: Starting single player game");
 			game.start(null);
 			this.frame.setVisible(false);
 		}
@@ -153,30 +153,25 @@ public class Program implements ActionListener { //ItemListener {
 			new Thread(new Client(host, 8000)).start();
 		}
 		catch (UnknownHostException uhe) {
-			JOptionPane.showConfirmDialog(this.frame,
-					"Host " + host + " was not found!", "Error", JOptionPane.DEFAULT_OPTION);
+			Dialog.message("Error", "Host " + host + " was not found!");
 		}
 		catch (IOException ioe) {
-			JOptionPane.showConfirmDialog(this.frame,
-					"Could not connect. Check your internet connection.", "Error", JOptionPane.DEFAULT_OPTION);
+			Dialog.message("Error", "Could not connect. Check your internet connection.");
 		}
 	}
 	
 	public static void main(String[] args)
 	{
 		try {
-			//UIManager.setLookAndFeel("com.sun.java.swing.plaf.windows.WindowsLookAndFeel");
+			// UIManager.setLookAndFeel("com.sun.java.swing.plaf.windows.WindowsLookAndFeel");
 			UIManager.setLookAndFeel("javax.swing.plaf.metal.MetalLookAndFeel");
 		} catch (UnsupportedLookAndFeelException | IllegalAccessException
 				| InstantiationException | ClassNotFoundException ex) {
 			ex.printStackTrace();
 		}
 		
-		// Turn off metal's use of bold fonts
-		UIManager.put("swing.boldMetal", Boolean.FALSE);
-		 
-		// Schedule a job for the event dispatch thread:
-		// creating and showing this application's GUI.
+		// UIManager.put("swing.boldMetal", Boolean.FALSE);
+		
 		javax.swing.SwingUtilities.invokeLater(new Runnable() {
 			public void run() {
 				Program.get();

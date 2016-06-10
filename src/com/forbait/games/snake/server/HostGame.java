@@ -14,7 +14,6 @@ import java.util.List;
 import java.util.Set;
 
 import javax.swing.JFrame;
-import javax.swing.JOptionPane;
 import javax.swing.Timer;
 
 import com.forbait.games.snake.Program;
@@ -24,6 +23,7 @@ import com.forbait.games.snake.elements.Egg;
 import com.forbait.games.snake.elements.Element;
 import com.forbait.games.snake.elements.Movement;
 import com.forbait.games.snake.elements.Snake;
+import com.forbait.games.snake.ui.Dialog;
 import com.forbait.games.snake.ui.MessagePanel;
 import com.forbait.games.util.Dimension;
 import com.forbait.games.util.Point;
@@ -133,7 +133,7 @@ public class HostGame implements KeyListener, ActionListener, WindowListener {
 		if (this.world.countSnakes() == 0)
 		{
 			System.out.println("Game.actionP: Game closing due to lack of snakes alive");
-			JOptionPane.showConfirmDialog(null, "Game over!", "Snak", JOptionPane.DEFAULT_OPTION);
+			Dialog.nonBlockingMessage("Snak", "Game over!");
 			close();
 			return;
 		}
@@ -166,18 +166,11 @@ public class HostGame implements KeyListener, ActionListener, WindowListener {
 			this.frame.removeKeyListener(this);
 			
 			if (this.world.countSnakes() > 0)
-				new Thread(new Runnable() {
-					@Override
-					public void run()
-					{
-						JOptionPane.showConfirmDialog(null,
-								new MessagePanel()
-								.add("Your snake is dead! :(")
-								.add("But allow the players to finish! :)"),
-								"Dead", JOptionPane.DEFAULT_OPTION
-							);
-					}
-				}).start();
+				Dialog.nonBlockingMessage("Snak",
+						new MessagePanel()
+							.add("Your snake is dead! :(")
+							.add("But allow the players to finish! :)")
+					);
 		}
 		
 		// Remove dead bots and genereate their next movements

@@ -5,12 +5,11 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
 
-import javax.swing.JOptionPane;
-
 import com.forbait.games.snake.Command;
 import com.forbait.games.snake.Command.Type;
 import com.forbait.games.snake.elements.Element;
 import com.forbait.games.snake.elements.Movement;
+import com.forbait.games.snake.ui.Dialog;
 import com.forbait.games.snake.ui.MessagePanel;
 import com.forbait.games.util.Dimension;
 
@@ -79,7 +78,7 @@ public class Client implements Runnable {
 					break;
 					
 				case START:
-					// TODO
+					System.out.println("Client.run: Starting game");
 					break;
 					
 				case FRAME:
@@ -89,25 +88,28 @@ public class Client implements Runnable {
 					
 				case DEAD:
 					System.out.println("Client.run: Local snake is dead");
-					closed = JOptionPane.showConfirmDialog(null,
-							new MessagePanel().add("Your snake is dead! :(").add("Continue?"),
-							"Dead", JOptionPane.YES_NO_OPTION
-						) != JOptionPane.YES_OPTION;
+					Dialog.nonBlockingMessage("Dead", new MessagePanel()
+							.add("Your snake is dead! :(")
+							.add("Continue?")
+						);
 					break;
 					
 				case ERROR:
 					System.out.println("Client.run: Server problem");
-					
-					Object message = "Server problem! :(";
+					String message = "Server problem! :(";
 					
 					if (cmd.data != null && cmd.data instanceof String)
-						message = new MessagePanel().add((String) message).add((String) cmd.data);
-										
-					JOptionPane.showConfirmDialog(null, message, "Error", JOptionPane.DEFAULT_OPTION);
+						Dialog.message("Error", new MessagePanel()
+								.add((String) message)
+								.add((String) cmd.data)
+							);
+					else
+						Dialog.message("Error", message);
+					break;
 					
 				case END:
 					System.out.println("Client.run: Game ended");
-					JOptionPane.showConfirmDialog(null, "Game over!", "Snak", JOptionPane.DEFAULT_OPTION);
+					Dialog.message("Snak", "Game over!");
 					closed = true;
 					
 				default:

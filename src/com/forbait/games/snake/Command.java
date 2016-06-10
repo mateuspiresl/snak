@@ -28,6 +28,10 @@ public class Command implements Serializable {
 	
 	public static enum Type implements Serializable {
 		
+		// MatchServer
+		SERVER,
+		CLIENT,
+		
 		// Server-Client
 		DIMENSION,	// Game tiles dimension
 		SNAKE,		// Client's snake

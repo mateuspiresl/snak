@@ -32,6 +32,11 @@ import com.forbait.games.util.Dimension;
 public class Program implements ActionListener {
 	
 	private static Program INSTANCE = null;
+	
+	public static String MATCH_SERVER_ADDRESS = "127.0.0.1";
+	public static final int MATCH_SERVER_PORT = 8001;
+	public static int HOST_PORT = 8000;
+	
 	public final static String PANEL_START = "start";
 	public final static String PANEL_CREATE = "create";
 	private static final String PANEL_CONNECT = "connect";
@@ -99,7 +104,7 @@ public class Program implements ActionListener {
 	
 	/*	Create a game.
 	 * 	Starts server if number of players is greater then one. */
-	public void createGame(int numPlayers, int numBots, int dimension)
+	public void createGame(int numPlayers, int numBots, int dimension, final String hostName)
 	{
 		final Dimension tiles = new Dimension(dimension, dimension);
 		final HostGame game = new HostGame(tiles, numBots);
@@ -107,11 +112,12 @@ public class Program implements ActionListener {
 		if (numPlayers > 1) try
 		{
 			final WaitDialog dialog = new WaitDialog();
-			final Server server = new Server(8000, numPlayers - 1);
+			final Server server = new Server(HOST_PORT, numPlayers - 1);
 			
 			new Thread(new Runnable() {
 				@Override
 				public void run() {
+					server.notifyMatchServer(hostName);
 					server.waitClients(game, tiles, dialog);
 				}
 			}).start();
@@ -130,10 +136,12 @@ public class Program implements ActionListener {
 			}
 		}
 		catch (BindException be) {
-			JOptionPane.showConfirmDialog(this.frame,
-					"Port 8000 in use by another application.",
-					"Error", JOptionPane.DEFAULT_OPTION
-				);
+//			JOptionPane.showConfirmDialog(this.frame,
+//					"Port 8000 in use by another application.",
+//					"Error", JOptionPane.DEFAULT_OPTION
+//				);
+			HOST_PORT += 2;
+			createGame(numPlayers, numBots, dimension, hostName);
 		}
 		catch (IOException ioe) {
 			ioe.printStackTrace();
@@ -151,13 +159,17 @@ public class Program implements ActionListener {
 		}
 	}
 	
+	public void createGame(int numPlayers, int numBots, int dimension) {
+		createGame(numPlayers, numBots, dimension, null);
+	}
+	
 	/*	Connect to a game. */
-	public void connectGame(String host)
+	public void connectGame(String host, int port)
 	{
-		Debug.log("Program.connectG: host: " + host);
+		Debug.log("Program.connectG: Connect to " + host + " at " + port);
 		
 		try {
-			new Thread(new Client(host, 8000)).start();
+			new Thread(new Client(host, port)).start();
 		}
 		catch (UnknownHostException uhe) {
 			Dialog.message("Error", "Host " + host + " was not found!");
@@ -169,6 +181,13 @@ public class Program implements ActionListener {
 	
 	public static void main(String[] args)
 	{
+		if (args.length > 0)
+		{
+			System.out.println(args[0]);
+			System.out.println(args[1]);
+			MATCH_SERVER_ADDRESS = args[0];
+		}
+		
 		try {
 			// UIManager.setLookAndFeel("com.sun.java.swing.plaf.windows.WindowsLookAndFeel");
 			UIManager.setLookAndFeel("javax.swing.plaf.metal.MetalLookAndFeel");

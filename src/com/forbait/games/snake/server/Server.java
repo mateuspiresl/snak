@@ -1,21 +1,28 @@
 package com.forbait.games.snake.server;
 
 import java.io.IOException;
+import java.io.ObjectOutputStream;
 import java.net.BindException;
 import java.net.ServerSocket;
+import java.net.Socket;
+import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import javax.swing.JOptionPane;
+
 import com.forbait.games.snake.Command;
 import com.forbait.games.snake.Command.Type;
 import com.forbait.games.snake.Debug;
+import com.forbait.games.snake.Program;
 import com.forbait.games.snake.elements.Element;
 import com.forbait.games.snake.elements.Snake;
 import com.forbait.games.snake.server.HostClient.Sender;
 import com.forbait.games.snake.ui.ClientsConnectionListener;
 import com.forbait.games.util.Dimension;
+import com.forbait.games.util.ServerInfo;
 
 public class Server {
 	
@@ -24,6 +31,7 @@ public class Server {
 	private ExecutorService sender;
 	private List<HostClient> clients = new ArrayList<HostClient>();
 	
+	private Socket socket;
 	private int numClients;
 	private boolean closed = false;
 	
@@ -50,6 +58,13 @@ public class Server {
 			
 			this.clients.add(client);
 			listener.clientConnected();
+			
+			try {
+				this.socket.close();
+			} catch (IOException ioe) {
+				Debug.log("Server.waitC: Macth server onnection already closed");
+				ioe.printStackTrace();
+			}
 		}
 		catch (IOException ioe) {
 			if (this.closed)
@@ -112,4 +127,33 @@ public class Server {
 			e.printStackTrace();
 		}
 	}
+
+	public void notifyMatchServer(String name)
+	{
+		try {
+			this.socket = new Socket(Program.MATCH_SERVER_ADDRESS, Program.MATCH_SERVER_PORT);
+			
+			ObjectOutputStream oos = new ObjectOutputStream(socket.getOutputStream());
+			oos.writeObject(new Command(Command.Type.SERVER, new ServerInfo("", Program.HOST_PORT, name)));
+			
+//			oos.close();
+		} catch (UnknownHostException e) {
+			Debug.log("Could not connect to match server");
+			e.printStackTrace();
+			if (askLocalGame()) this.close();
+		} catch (IOException e) {
+			Debug.log("Connection error on match server");
+			e.printStackTrace();
+			if (askLocalGame()) this.close();
+		}
+	}
+	
+	public boolean askLocalGame()
+	{
+		return JOptionPane.showConfirmDialog(null,
+				"Could not connect to match server. Start local game?", "Error",
+				JOptionPane.YES_NO_OPTION, JOptionPane.YES_OPTION
+			) != JOptionPane.YES_OPTION;
+	}
+	
 }

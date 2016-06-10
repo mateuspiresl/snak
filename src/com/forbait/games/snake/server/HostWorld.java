@@ -16,7 +16,6 @@ import java.util.Set;
 
 import com.forbait.games.snake.Debug;
 import com.forbait.games.snake.elements.Eatable;
-import com.forbait.games.snake.elements.Element;
 import com.forbait.games.snake.elements.Movement;
 import com.forbait.games.snake.elements.Snake;
 import com.forbait.games.snake.elements.SnakePiece;
@@ -281,7 +280,7 @@ public class HostWorld extends Canvas {
 			eatable.draw(g);
 	}
 
-	public Collection<? extends Element> getEatables() {
+	public Collection<Eatable> getEatables() {
 		return this.eatables.values();
 	}
 	

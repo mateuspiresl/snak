@@ -12,6 +12,10 @@ public class Point extends Pair<Integer, Integer> implements Serializable {
 		this.y = y;
 	}
 	
+	public int distanceBetween(Point that) {
+		return Math.abs(this.x - that.x) + Math.abs(this.y - that.y);
+	}
+	
 	@Override
 	public Integer getA() {
 		return this.x;

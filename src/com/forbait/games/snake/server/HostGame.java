@@ -36,7 +36,6 @@ public class HostGame implements KeyListener, Runnable, WindowListener {
 	private Server server;
 	private JFrame frame;
 	private HostWorld world;
-//	private Timer loop;
 	
 	private List<Bot> bots = new ArrayList<Bot>();
 	private Snake player;
@@ -77,10 +76,11 @@ public class HostGame implements KeyListener, Runnable, WindowListener {
 		for (int i = 0; i < numEatables; i++)
 			this.world.add(new Egg(this.world.findEmptyCell()));
 		
+		// Shows game window
 		this.frame.setVisible(true);
+		
+		// Starts game loop
 		this.executor.scheduleAtFixedRate(this, FPS, FPS, TimeUnit.MILLISECONDS);
-//		this.loop = new Timer(FPS, this);
-//		this.loop.start();
 	}
 	
 	public <T extends Snake> T createSnake(Class<T> type)
@@ -124,7 +124,6 @@ public class HostGame implements KeyListener, Runnable, WindowListener {
 	{
 		Debug.log("HostG.close");
 		this.executor.shutdown();
-//		this.loop.stop();
 		if (server != null) this.server.close();
 		this.frame.dispose();
 		Program.get().setWindowVisibility(true);
@@ -142,13 +141,13 @@ public class HostGame implements KeyListener, Runnable, WindowListener {
 			return;
 		}
 		
+		// Makes moves and paint
+		Set<Snake> dead = this.world.move();
+		
 		// Keep the amount of eggs
 		int numEatables = this.world.countSnakes();
 		for (int i = this.world.countEatables(); i < numEatables; i++)
 			this.world.add(new Egg(this.world.findEmptyCell()));
-		
-		// Makes moves and paint
-		Set<Snake> dead = this.world.move();
 		
 		if (this.server != null)
 		{

@@ -11,6 +11,7 @@ import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JTextField;
 
 import com.forbait.games.snake.Program;
 
@@ -23,6 +24,7 @@ public class CreatePanel extends JPanel implements ActionListener {
 	private JComboBox<Integer>	numPlayersList,
 								numBotsList,
 								dimensionsList;
+	private JTextField hostName;
 	private int numPlayers = 1,
 				numBots = 0,
 				dimension = 15;
@@ -33,6 +35,9 @@ public class CreatePanel extends JPanel implements ActionListener {
 	
 	public CreatePanel() {
 		super(new BorderLayout());
+		
+		this.hostName = new JTextField();
+		this.hostName.setColumns(10);
 		
 		this.numPlayersList = new JComboBox<Integer>(PLAYERS);
 		this.numBotsList = new JComboBox<Integer>(BOTS);
@@ -55,6 +60,8 @@ public class CreatePanel extends JPanel implements ActionListener {
 		backButton.addActionListener(Program.get());
 		
 		// Insertion
+		
+		super.add(this.hostName, BorderLayout.NORTH);
 		
 		JPanel center = new JPanel();
 		JPanel block;
@@ -118,8 +125,7 @@ public class CreatePanel extends JPanel implements ActionListener {
 	{
 		if (e.getActionCommand().equals(ACTION_CREATE))
 		{
-			Program.get().createGame(this.numPlayers, this.numBots, this.dimension);
-			
+			Program.get().createGame(this.numPlayers, this.numBots, this.dimension, this.hostName.getText());
 			return;
 		}
 		else if (e.getSource().equals(this.numPlayersList))

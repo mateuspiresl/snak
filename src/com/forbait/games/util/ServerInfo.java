@@ -17,7 +17,7 @@ public class ServerInfo implements Serializable {
 	
 	@Override
 	public String toString() {
-		return ip + " " + port + " " + name;
+		return "ServerInfo { ip: " + this.ip + ", port: " + this.port + ", name: " + this.name + " }";
 	}
 	
 }

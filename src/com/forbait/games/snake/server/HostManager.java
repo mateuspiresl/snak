@@ -15,6 +15,7 @@ import javax.swing.JOptionPane;
 
 import com.forbait.games.snake.Command;
 import com.forbait.games.snake.Command.Type;
+import com.forbait.games.snake.DB;
 import com.forbait.games.snake.Debug;
 import com.forbait.games.snake.Program;
 import com.forbait.games.snake.elements.Element;
@@ -22,7 +23,9 @@ import com.forbait.games.snake.elements.Snake;
 import com.forbait.games.snake.server.HostClient.Sender;
 import com.forbait.games.snake.ui.ClientsConnectionListener;
 import com.forbait.games.util.Dimension;
-import com.forbait.games.util.ServerInfo;
+import com.forbait.games.snake.matchserver.MatchInfo;
+
+import io.orchestrate.client.KvMetadata;
 
 public class HostManager {
 	
@@ -130,11 +133,17 @@ public class HostManager {
 
 	public void notifyMatchServer(String name)
 	{
+		MatchInfo info = new MatchInfo("", Program.HOST_PORT, name);
+		
+		final KvMetadata kvMetadata = DB.client.kv("hosts", "host")
+			.put(info)
+			.get();
+		
 		try {
 			this.matchServer = new Socket(Program.MATCH_SERVER_ADDRESS, Program.MATCH_SERVER_PORT);
 			
 			ObjectOutputStream oos = new ObjectOutputStream(matchServer.getOutputStream());
-			oos.writeObject(new Command(Command.Type.SERVER, new ServerInfo("", Program.HOST_PORT, name)));
+			oos.writeObject(new Command(Command.Type.SERVER, new MatchInfo("", Program.HOST_PORT, name)));
 			
 //			oos.close();
 		} catch (UnknownHostException e) {

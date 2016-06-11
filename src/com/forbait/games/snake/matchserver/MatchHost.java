@@ -7,7 +7,6 @@ import java.net.Socket;
 
 import com.forbait.games.snake.Command;
 import com.forbait.games.snake.Debug;
-import com.forbait.games.util.ServerInfo;
 
 public class MatchHost implements Runnable {
 
@@ -34,7 +33,7 @@ public class MatchHost implements Runnable {
 			if (cmd.type.equals(Command.Type.SERVER))
 			{
 				Debug.log("MatchH.run: Server connect");
-				ServerInfo info = (ServerInfo) cmd.data;
+				MatchInfo info = (MatchInfo) cmd.data;
 				info.ip = this.host.getInetAddress().getHostAddress();
 				
 				Debug.log("MatchH.run: Server info: " + info);

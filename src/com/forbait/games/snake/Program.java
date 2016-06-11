@@ -30,7 +30,7 @@ import io.orchestrate.client.OrchestrateClient;
 
 /*
  * Janela principal.
- * Contém os métodos para criar e conectar a jogos.
+ * Cont?m os mÃ©todos para criar e conectar a jogos.
  */
 public class Program implements ActionListener {
 	

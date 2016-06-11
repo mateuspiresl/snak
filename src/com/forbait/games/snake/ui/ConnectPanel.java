@@ -19,7 +19,7 @@ import javax.swing.JPanel;
 import com.forbait.games.snake.Command;
 import com.forbait.games.snake.Debug;
 import com.forbait.games.snake.Program;
-import com.forbait.games.util.ServerInfo;
+import com.forbait.games.snake.matchserver.MatchInfo;
 
 @SuppressWarnings("serial")
 public class ConnectPanel extends JPanel implements ActionListener {
@@ -30,7 +30,7 @@ public class ConnectPanel extends JPanel implements ActionListener {
 	
 	private JComboBox<String> hostsList;
 	private JButton connectButton, updateButton, backButton;
-	private Map<String, ServerInfo> hosts;
+	private Map<String, MatchInfo> hosts;
 	
 	public ConnectPanel() {
 		super(new BorderLayout());
@@ -79,7 +79,7 @@ public class ConnectPanel extends JPanel implements ActionListener {
 //			oos.close();
 			
 			ObjectInputStream ois = new ObjectInputStream(socket.getInputStream());
-			this.hosts = (Map<String, ServerInfo>) ois.readObject();
+			this.hosts = (Map<String, MatchInfo>) ois.readObject();
 		}
 		catch (IOException e) {
 			e.printStackTrace();
@@ -107,9 +107,9 @@ public class ConnectPanel extends JPanel implements ActionListener {
 		switch (e.getActionCommand())
 		{
 		case ACTION_CONNECT:
-			ServerInfo info = this.hosts.get(this.hostsList.getSelectedItem());
+			MatchInfo info = this.hosts.get(this.hostsList.getSelectedItem());
 			if (info == null)
-				info = new ServerInfo("127.0.0.1", Program.HOST_PORT, "");
+				info = new MatchInfo("127.0.0.1", Program.HOST_PORT, "");
 			
 			Program.get().connectGame(info.ip, info.port);
 			break;

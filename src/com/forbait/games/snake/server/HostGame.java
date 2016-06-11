@@ -33,7 +33,7 @@ public class HostGame implements KeyListener, Runnable, WindowListener {
 
 	private final int FPS = 1000 / 8;
 
-	private Server server;
+	private HostManager server;
 	private JFrame frame;
 	private HostWorld world;
 	
@@ -66,7 +66,7 @@ public class HostGame implements KeyListener, Runnable, WindowListener {
 		this.frame.pack();
 	}
 	
-	public void start(Server server)
+	public void start(HostManager server)
 	{
 		this.server = server;
 		

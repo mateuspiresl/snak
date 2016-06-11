@@ -14,13 +14,13 @@ import com.forbait.games.snake.ui.Dialog;
 import com.forbait.games.snake.ui.MessagePanel;
 import com.forbait.games.util.Dimension;
 
-public class Client implements Runnable {
+public class ClientManager implements Runnable {
 
 	private Socket server;
 	private ClientGame game;
 	private ObjectOutputStream oos;
 	
-	public Client(String hostAddress, int port) throws IOException
+	public ClientManager(String hostAddress, int port) throws IOException
 	{
 		this.server = new Socket(hostAddress, port);
 		this.oos = new ObjectOutputStream(this.server.getOutputStream());

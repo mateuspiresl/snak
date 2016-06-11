@@ -55,9 +55,13 @@ public class ConnectPanel extends JPanel implements ActionListener {
 		
 		// Insertion
 		
-		super.add(this.hostsList, BorderLayout.CENTER);
+		JPanel block;
 		
-		JPanel block = new JPanel(new FlowLayout());
+		block = new JPanel();
+		block.add(this.hostsList);
+		super.add(block, BorderLayout.CENTER);
+		
+		block = new JPanel(new FlowLayout());
 		block.add(this.backButton);
 		block.add(this.updateButton);
 		block.add(this.connectButton);
@@ -87,10 +91,9 @@ public class ConnectPanel extends JPanel implements ActionListener {
 			this.hosts = Collections.emptyMap();
 		}
 		finally {
-			try {
-				if (socket != null)
-					socket.close();
-			} catch (IOException e1) { e1.printStackTrace(); }			
+			if (socket != null) try {
+				socket.close();
+			} catch (IOException e) { e.printStackTrace(); }			
 		}
 		
 		this.hostsList.setModel(new DefaultComboBoxModel<String>(
@@ -106,10 +109,8 @@ public class ConnectPanel extends JPanel implements ActionListener {
 		case ACTION_CONNECT:
 			ServerInfo info = this.hosts.get(this.hostsList.getSelectedItem());
 			if (info == null)
-			{
-				info.ip = "127.0.0.1";
-				info.port = Program.HOST_PORT;
-			}
+				info = new ServerInfo("127.0.0.1", Program.HOST_PORT, "");
+			
 			Program.get().connectGame(info.ip, info.port);
 			break;
 			

@@ -15,15 +15,18 @@ import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
 
 import com.forbait.games.snake.Command.Type;
-import com.forbait.games.snake.client.Client;
+import com.forbait.games.snake.client.ClientManager;
 import com.forbait.games.snake.server.HostGame;
-import com.forbait.games.snake.server.Server;
+import com.forbait.games.snake.server.HostManager;
 import com.forbait.games.snake.ui.ConnectPanel;
 import com.forbait.games.snake.ui.CreatePanel;
 import com.forbait.games.snake.ui.Dialog;
 import com.forbait.games.snake.ui.StartPanel;
 import com.forbait.games.snake.ui.WaitDialog;
 import com.forbait.games.util.Dimension;
+
+import io.orchestrate.client.Client;
+import io.orchestrate.client.OrchestrateClient;
 
 /*
  * Janela principal.
@@ -112,7 +115,7 @@ public class Program implements ActionListener {
 		if (numPlayers > 1) try
 		{
 			final WaitDialog dialog = new WaitDialog();
-			final Server server = new Server(HOST_PORT, numPlayers - 1);
+			final HostManager server = new HostManager(HOST_PORT, numPlayers - 1);
 			
 			new Thread(new Runnable() {
 				@Override
@@ -136,12 +139,10 @@ public class Program implements ActionListener {
 			}
 		}
 		catch (BindException be) {
-//			JOptionPane.showConfirmDialog(this.frame,
-//					"Port 8000 in use by another application.",
-//					"Error", JOptionPane.DEFAULT_OPTION
-//				);
-			HOST_PORT += 2;
-			createGame(numPlayers, numBots, dimension, hostName);
+			JOptionPane.showConfirmDialog(this.frame,
+					"Port 8000 in use by another application.",
+					"Error", JOptionPane.DEFAULT_OPTION
+				);
 		}
 		catch (IOException ioe) {
 			ioe.printStackTrace();
@@ -169,7 +170,7 @@ public class Program implements ActionListener {
 		Debug.log("Program.connectG: Connect to " + host + " at " + port);
 		
 		try {
-			new Thread(new Client(host, port)).start();
+			new Thread(new ClientManager(host, port)).start();
 		}
 		catch (UnknownHostException uhe) {
 			Dialog.message("Error", "Host " + host + " was not found!");
@@ -181,13 +182,6 @@ public class Program implements ActionListener {
 	
 	public static void main(String[] args)
 	{
-		if (args.length > 0)
-		{
-			System.out.println(args[0]);
-			System.out.println(args[1]);
-			MATCH_SERVER_ADDRESS = args[0];
-		}
-		
 		try {
 			// UIManager.setLookAndFeel("com.sun.java.swing.plaf.windows.WindowsLookAndFeel");
 			UIManager.setLookAndFeel("javax.swing.plaf.metal.MetalLookAndFeel");

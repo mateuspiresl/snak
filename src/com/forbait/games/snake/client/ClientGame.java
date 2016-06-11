@@ -18,9 +18,9 @@ public class ClientGame implements KeyListener, WindowListener {
 
 	private JFrame frame;
 	private ClientWorld world;
-	private Client client;
+	private ClientManager client;
 	
-	public ClientGame(Dimension tiles, Client client)
+	public ClientGame(Dimension tiles, ClientManager client)
 	{
 		this.client = client;
 		

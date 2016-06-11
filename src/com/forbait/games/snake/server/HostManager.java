@@ -24,18 +24,18 @@ import com.forbait.games.snake.ui.ClientsConnectionListener;
 import com.forbait.games.util.Dimension;
 import com.forbait.games.util.ServerInfo;
 
-public class Server {
+public class HostManager {
 	
 	private ServerSocket server;
 	private ExecutorService executor;
 	private ExecutorService sender;
 	private List<HostClient> clients = new ArrayList<HostClient>();
 	
-	private Socket socket;
+	private Socket matchServer;
 	private int numClients;
 	private boolean closed = false;
 	
-	public Server(int port, int numClients) throws BindException, IOException
+	public HostManager(int port, int numClients) throws BindException, IOException
 	{
 		this.server = new ServerSocket(port);
 		this.executor = Executors.newFixedThreadPool(numClients);
@@ -60,7 +60,7 @@ public class Server {
 			listener.clientConnected();
 			
 			try {
-				this.socket.close();
+				this.matchServer.close();
 			} catch (IOException ioe) {
 				Debug.log("Server.waitC: Macth server onnection already closed");
 				ioe.printStackTrace();
@@ -131,9 +131,9 @@ public class Server {
 	public void notifyMatchServer(String name)
 	{
 		try {
-			this.socket = new Socket(Program.MATCH_SERVER_ADDRESS, Program.MATCH_SERVER_PORT);
+			this.matchServer = new Socket(Program.MATCH_SERVER_ADDRESS, Program.MATCH_SERVER_PORT);
 			
-			ObjectOutputStream oos = new ObjectOutputStream(socket.getOutputStream());
+			ObjectOutputStream oos = new ObjectOutputStream(matchServer.getOutputStream());
 			oos.writeObject(new Command(Command.Type.SERVER, new ServerInfo("", Program.HOST_PORT, name)));
 			
 //			oos.close();

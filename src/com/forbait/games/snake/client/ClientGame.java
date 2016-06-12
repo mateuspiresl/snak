@@ -28,7 +28,7 @@ public class ClientGame implements KeyListener, WindowListener {
 		this.frame.setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
 		this.frame.setLayout(new BorderLayout());
 		
-		this.world = new ClientWorld(tiles);
+		this.world = new ClientWorld(this, tiles);
 		
 		this.frame.add(this.world);
 		this.frame.addWindowListener(this);

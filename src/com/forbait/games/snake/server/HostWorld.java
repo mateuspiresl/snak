@@ -37,13 +37,14 @@ public class HostWorld extends Canvas {
 	private Dimension tiles;
 	private Dimension screen;
 	
-	public HostWorld(Dimension tiles)
+	public HostWorld(HostGame game, Dimension tiles)
 	{
 		this.tiles = tiles;
 		this.screen = new Dimension(tiles.width * MULTIPLIER, tiles.height * MULTIPLIER);
 		
 		super.setBackground(new Color(225, 255, 225));
 		super.setSize(new java.awt.Dimension(this.screen.width, this.screen.height));
+		super.addKeyListener(game);
 	}
 	
 	public int countOccupied() {

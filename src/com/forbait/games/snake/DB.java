@@ -1,87 +1,78 @@
 package com.forbait.games.snake;
 
-import com.forbait.games.snake.matchserver.MatchInfo;
+import com.forbait.games.snake.server.GameInfo;
+import com.forbait.games.util.Utils;
 import io.orchestrate.client.*;
-
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.net.MalformedURLException;
-import java.net.URL;
 
 public class DB {
 
-	public static Client client = OrchestrateClient.builder("ee6a1d14-b41c-42f1-b87b-d393aee26e17").build();
-	
-	public static void main(String[] args)
-	{
-		String ip = "";
-		try {
-			URL ipChecker = new URL("http://checkip.amazonaws.com");
-			BufferedReader in = new BufferedReader(new InputStreamReader(ipChecker.openStream()));
-			ip = in.readLine();
-			in.close();
-		}
-		catch (MalformedURLException e) {
-			e.printStackTrace();
-		}
-		catch (IOException e) {
-			e.printStackTrace();
-		}
+	private static final Client client = OrchestrateClient.builder("ee6a1d14-b41c-42f1-b87b-d393aee26e17").build();
+	public static final long TIMEOUT = 30000;
 
-		MatchInfo info = new MatchInfo(ip, Program.HOST_PORT, "New host", System.currentTimeMillis(), 4, 40, 2);
-		
+	public static void postGame(GameInfo info)
+	{
 		final KvMetadata kvMetadata = DB.client.kv("hosts", info.name)
 				.put(info)
 				.get();
-		
-		System.out.println(kvMetadata.getRef());
 
+		System.out.println("DB.newG: Game created, ref: " + kvMetadata.getRef());
+	}
+
+	public static void getGames(ResponseListener<SearchResults<GameInfo>> listener)
+	{
+		System.out.println("DB.blockingGG: Requesting games list to listener");
 		long time = System.currentTimeMillis();
 
-		SearchResults<MatchInfo> results = client.searchCollection("hosts")
+		client.searchCollection("hosts")
 				.limit(20)
-				.get(MatchInfo.class, "value.time:[" + (time - 180000) + " TO " + (time + 180000) + "]")
+				.get(GameInfo.class, "value.time:[" + (time - TIMEOUT) + " TO " + (time + TIMEOUT) + "]")
+				.on(listener);
+	}
+
+	public static SearchResults<GameInfo> blockingGetGames()
+	{
+		System.out.println("DB.blockingGG: Requesting games list");
+		long time = System.currentTimeMillis();
+
+		SearchResults<GameInfo> results = client.searchCollection("hosts")
+				.limit(20)
+				.get(GameInfo.class, "value.time:[" + (time - TIMEOUT) + " TO " + (time + TIMEOUT) + "]")
 				.get();
 
 		if (results.getCount() == 0) {
-			System.out.println("No data.");
+			System.out.println("DB.getG: No games online");
 		}
 
-		for (Result<MatchInfo> result : results) {
-			System.out.println(result.getKvObject().getValue());
-		}
+		return results;
+	}
 
-//		KvObject<MatchInfo> object = client.kv("hosts", info.name)
-//				.get(MatchInfo.class)
-//				.get();
-//
-//		if (object == null) {
-//			System.out.println("NULL");
-//		} else {
-//			MatchInfo data = object.getValue();
-//			System.out.println(data);
-//		}
+	public static void closePost(GameInfo info)
+	{
+		System.out.println("DB.closeP: Closing post");
+		DB.client.kv("hosts", info.name)
+				.delete()
+				.get();
+	}
 
-//		client.kv("hosts", info.name)
-//				.get(MatchInfo.class)
-//				.on(new ResponseAdapter<KvObject<MatchInfo>>() {
-//					@Override
-//					public void onFailure(final Throwable error) {
-//						System.out.println("FAIL");
-//					}
-//
-//					@Override
-//					public void onSuccess(final KvObject<MatchInfo> object) {
-//						if (object == null) {
-//							System.out.println("NULL");
-//							return;
-//						}
-//
-//						MatchInfo data = object.getValue();
-//						System.out.println(data);
-//					}
-//				});
+	public static void main(String[] args)
+	{
+		GameInfo info = new GameInfo(Utils.getAddress(), 8000, "Jogo daqui 6", 30, 8, 0, 4);
+
+		DB.postGame(info);
+		SearchResults<GameInfo> games = DB.blockingGetGames();
+
+		for (Result<GameInfo> result : games.getResults()) {
+            System.out.println(result.getKvObject().getValue());
+        }
+
+		DB.closePost(info);
+		SearchResults<GameInfo> empty = DB.blockingGetGames();
+
+		final KvMetadata kvMetadata = DB.client.kv("hosts", info.name)
+				.get(GameInfo.class)
+				.get();
+
+		System.out.println(kvMetadata);
 	}
 	
 }

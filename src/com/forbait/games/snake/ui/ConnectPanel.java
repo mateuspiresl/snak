@@ -4,11 +4,7 @@ import java.awt.BorderLayout;
 import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.net.Socket;
-import java.util.Collections;
+import java.util.HashMap;
 import java.util.Map;
 
 import javax.swing.DefaultComboBoxModel;
@@ -16,13 +12,15 @@ import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JPanel;
 
-import com.forbait.games.snake.Command;
-import com.forbait.games.snake.Debug;
+import com.forbait.games.snake.DB;
 import com.forbait.games.snake.Program;
-import com.forbait.games.snake.matchserver.MatchInfo;
+import com.forbait.games.snake.server.GameInfo;
+import io.orchestrate.client.ResponseListener;
+import io.orchestrate.client.Result;
+import io.orchestrate.client.SearchResults;
 
 @SuppressWarnings("serial")
-public class ConnectPanel extends JPanel implements ActionListener {
+public class ConnectPanel extends JPanel implements ActionListener, ResponseListener<SearchResults<GameInfo>> {
 	
 	public static final String ACTION_CONNECT = "connect_connect";
 	public static final String ACTION_UPDATE = "connect_update";
@@ -30,7 +28,7 @@ public class ConnectPanel extends JPanel implements ActionListener {
 	
 	private JComboBox<String> hostsList;
 	private JButton connectButton, updateButton, backButton;
-	private Map<String, MatchInfo> hosts;
+	private Map<String, GameInfo> hosts;
 	
 	public ConnectPanel() {
 		super(new BorderLayout());
@@ -67,36 +65,26 @@ public class ConnectPanel extends JPanel implements ActionListener {
 		block.add(this.connectButton);
 		super.add(block, BorderLayout.SOUTH);
 	}
-	
+
+	private static String generateReadableInfo(GameInfo info) {
+		return info.name + ": "
+				+ info.dimension + "x" + info.dimension + ", "
+				+ info.numPlayers + "/" + info.numPlayersLeft + " players, "
+				+ info.numBots + " bots";
+	}
+
 	private void updateList()
 	{
-		Socket socket = null;
-		try {
-			socket = new Socket(Program.MATCH_SERVER_ADDRESS, Program.MATCH_SERVER_PORT);
-			
-			ObjectOutputStream oos = new ObjectOutputStream(socket.getOutputStream());
-			oos.writeObject(new Command(Command.Type.CLIENT));
-//			oos.close();
-			
-			ObjectInputStream ois = new ObjectInputStream(socket.getInputStream());
-			this.hosts = (Map<String, MatchInfo>) ois.readObject();
-		}
-		catch (IOException e) {
-			e.printStackTrace();
-			this.hosts = Collections.emptyMap();
-		}
-		catch (ClassNotFoundException e) {
-			Debug.log("ConnectP.updateL: Wrong answer from server");
-			e.printStackTrace();
-			this.hosts = Collections.emptyMap();
-		}
-		finally {
-			if (socket != null) try {
-				socket.close();
-			} catch (IOException e) { e.printStackTrace(); }			
+		SearchResults<GameInfo> results = DB.blockingGetGames();
+		this.hosts = new HashMap<String, GameInfo>();
+
+		for (Result<GameInfo> result : results)
+		{
+			GameInfo info = result.getKvObject().getValue();
+			this.hosts.put(generateReadableInfo(info), info);
 		}
 		
-		this.hostsList.setModel(new DefaultComboBoxModel<String>(
+		this.hostsList.setModel(new DefaultComboBoxModel<>(
 				this.hosts.keySet().toArray(new String[0])
 			));
 	}
@@ -107,9 +95,9 @@ public class ConnectPanel extends JPanel implements ActionListener {
 		switch (e.getActionCommand())
 		{
 		case ACTION_CONNECT:
-			MatchInfo info = this.hosts.get(this.hostsList.getSelectedItem());
+			GameInfo info = this.hosts.get(this.hostsList.getSelectedItem());
 			if (info == null)
-				info = new MatchInfo("127.0.0.1", Program.HOST_PORT, "");
+				info = new GameInfo("127.0.0.1", Program.HOST_PORT, "");
 			
 			Program.get().connectGame(info.ip, info.port);
 			break;
@@ -117,6 +105,16 @@ public class ConnectPanel extends JPanel implements ActionListener {
 		case ACTION_UPDATE:
 			updateList();
 		}
+	}
+
+	@Override
+	public void onFailure(Throwable throwable) {
+
+	}
+
+	@Override
+	public void onSuccess(SearchResults<GameInfo> results) {
+
 	}
 
 }

@@ -44,7 +44,7 @@ public class HostGame implements KeyListener, Runnable, WindowListener {
 	
 	public HostGame(Dimension tiles, int numBots)
 	{
-		this.world = new HostWorld(tiles); 
+		this.world = new HostWorld(this, tiles);
 		setFrame(this.world);
 		
 		this.player = createSnake(Snake.class);

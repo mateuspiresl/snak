@@ -16,11 +16,12 @@ public class ClientWorld extends Canvas {
 	
 	private Element[] elements;
 	
-	public ClientWorld(Dimension tiles)
+	public ClientWorld(ClientGame game, Dimension tiles)
 	{
 		super();
 		super.setBackground(new Color(225, 255, 225));
 		super.setSize(new java.awt.Dimension(tiles.width * MULTIPLIER, tiles.height * MULTIPLIER));
+		super.addKeyListener(game);
 	}
 	
 	public void setElements(Element[] elements)

@@ -16,6 +16,7 @@ import javax.swing.UnsupportedLookAndFeelException;
 
 import com.forbait.games.snake.Command.Type;
 import com.forbait.games.snake.client.ClientManager;
+import com.forbait.games.snake.server.GameInfo;
 import com.forbait.games.snake.server.HostGame;
 import com.forbait.games.snake.server.HostManager;
 import com.forbait.games.snake.ui.ConnectPanel;
@@ -25,8 +26,7 @@ import com.forbait.games.snake.ui.StartPanel;
 import com.forbait.games.snake.ui.WaitDialog;
 import com.forbait.games.util.Dimension;
 
-import io.orchestrate.client.Client;
-import io.orchestrate.client.OrchestrateClient;
+import com.forbait.games.util.Utils;
 
 /*
  * Janela principal.
@@ -115,12 +115,12 @@ public class Program implements ActionListener {
 		if (numPlayers > 1) try
 		{
 			final WaitDialog dialog = new WaitDialog();
-			final HostManager server = new HostManager(HOST_PORT, numPlayers - 1);
-			
+			final GameInfo info = new GameInfo(Utils.getAddress(), HOST_PORT, hostName, dimension, numPlayers, numBots, numPlayers - 1);
+			final HostManager server = new HostManager(info);
+
 			new Thread(new Runnable() {
 				@Override
 				public void run() {
-					server.notifyMatchServer(hostName);
 					server.waitClients(game, tiles, dialog);
 				}
 			}).start();

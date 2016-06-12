@@ -9,11 +9,12 @@ import java.util.concurrent.Executors;
 
 import com.forbait.games.snake.Debug;
 import com.forbait.games.snake.Program;
+import com.forbait.games.snake.server.GameInfo;
 
 public class MatchServer {
 
 	private ServerSocket socket;
-	private Map<String, MatchInfo> hosts = new HashMap<String, MatchInfo>();
+	private Map<String, GameInfo> hosts = new HashMap<String, GameInfo>();
 	private ExecutorService executor = Executors.newCachedThreadPool();
 	
 	public MatchServer()
@@ -38,7 +39,7 @@ public class MatchServer {
 		}
 	}
 	
-	public synchronized void addMatch(MatchInfo info, String name) {
+	public synchronized void addMatch(GameInfo info, String name) {
 		Debug.log("MatchS.addM: Adding " + name + " at " + info.ip);
 		this.hosts.put(name, info);
 	}
@@ -48,7 +49,7 @@ public class MatchServer {
 		this.hosts.remove(name);
 	}
 	
-	public synchronized Map<String, MatchInfo> getHosts() {
+	public synchronized Map<String, GameInfo> getHosts() {
 		Debug.log("MatchS.addM: Getting " + this.hosts.size() + " hosts");
 		return this.hosts;
 	}

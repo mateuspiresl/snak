@@ -1,6 +1,8 @@
 # JAVA
 
 *.class
+out/
+src/META-INF
 
 # IntelliJ
 .idea/

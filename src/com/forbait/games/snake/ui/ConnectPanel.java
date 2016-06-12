@@ -69,7 +69,7 @@ public class ConnectPanel extends JPanel implements ActionListener, ResponseList
 	private static String generateReadableInfo(GameInfo info) {
 		return info.name + ": "
 				+ info.dimension + "x" + info.dimension + ", "
-				+ info.numPlayers + "/" + info.numPlayersLeft + " players, "
+				+ info.numPlayersLeft + "/" + info.numPlayers + " players, "
 				+ info.numBots + " bots";
 	}
 

@@ -4,6 +4,8 @@ import java.awt.BorderLayout;
 import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
 import java.util.Arrays;
 
 import javax.swing.DefaultComboBoxModel;
@@ -12,6 +14,9 @@ import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
+import javax.swing.event.DocumentListener;
+import javax.swing.event.UndoableEditListener;
+import javax.swing.text.*;
 
 import com.forbait.games.snake.Program;
 
@@ -38,7 +43,14 @@ public class CreatePanel extends JPanel implements ActionListener {
 		
 		this.hostName = new JTextField();
 		this.hostName.setColumns(10);
-		
+		this.hostName.addKeyListener(new KeyAdapter() {
+			@Override
+			public void keyTyped(KeyEvent e) {
+				if (((JTextField) e.getSource()).getText().length() >= 18)
+					e.consume();
+			}
+		});
+
 		this.numPlayersList = new JComboBox<Integer>(PLAYERS);
 		this.numBotsList = new JComboBox<Integer>(BOTS);
 		this.dimensionsList = new JComboBox<Integer>(DIMENSIONS);
@@ -60,12 +72,16 @@ public class CreatePanel extends JPanel implements ActionListener {
 		backButton.addActionListener(Program.get());
 		
 		// Insertion
-		
-		super.add(this.hostName, BorderLayout.NORTH);
-		
-		JPanel center = new JPanel();
+
 		JPanel block;
-		
+
+		block = new JPanel();
+		block.add(new JLabel("Nome:"));
+		block.add(this.hostName);
+		super.add(block, BorderLayout.NORTH);
+
+		JPanel center = new JPanel();
+
 		block = new JPanel();
 		block.add(new JLabel("Players:"));
 		block.add(this.numPlayersList);
